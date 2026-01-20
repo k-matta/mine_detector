@@ -3,7 +3,7 @@ import rocketLogo from '/rocket.png'
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 
 let auth;
-
+console.log(import.meta.env.VITE_DISCORD_CLIENT_ID);
 document.querySelector('#app').innerHTML = `
   <div>
 	<img src="${rocketLogo}" class="logo" alt="Discord" />
@@ -75,5 +75,6 @@ async function appendVoiceChannelName() {
 	textTag.innerText = `Activity Channel: "${activityChannelName}"`;
 	app.appendChild(textTag);
 }
+
 
 
