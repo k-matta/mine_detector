@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 dotenv.config({ path: "../.env" });
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT;;
 
 // Allow express to parse JSON bodies
 app.use(express.json());
@@ -35,3 +35,4 @@ app.post("/api/token", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
+
