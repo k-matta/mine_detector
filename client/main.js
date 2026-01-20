@@ -4,6 +4,13 @@ import { DiscordSDK } from "@discord/embedded-app-sdk";
 
 let auth;
 
+document.querySelector('#app').innerHTML = `
+  <div>
+	<img src="${rocketLogo}" class="logo" alt="Discord" />
+	<h1>Hello, World!</h1>
+  </div>
+`;
+
 const discordSdk = new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
 
 setupDiscordSdk().then(() => {
@@ -58,6 +65,8 @@ async function appendVoiceChannelName() {
 	if (discordSdk.channelId != null && discordSdk.guildId != null) {
 		const channel = await discordSdk.commands.getChannel({channel_id: discordSdk.channelId});
 		if (channel.name != null) {
+			console.log("Channel Name:", channel.name);
+			console.log(channel);
 			activityChannelName = channel.name;
 		}
 	}
@@ -67,11 +76,3 @@ async function appendVoiceChannelName() {
 	textTag.textContent = textTagString;
 	app.appendChild(textTag);
 }
-
-document.querySelector('#app').innerHTML += `
-  <div>
-	<img src="${rocketLogo}" class="logo" alt="Discord" />
-	<h1>Hello, World!</h1>
-  </div>
-`;
-
