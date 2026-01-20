@@ -71,8 +71,7 @@ async function appendVoiceChannelName() {
 		}
 	}
 
-	const textTagString = `Activity Channel: "${activityChannelName}"`;
 	const textTag = document.createElement('p');
-	textTag.textContent = textTagString;
+	textTag.innerText = `Activity Channel: "${activityChannelName}"`;
 	app.appendChild(textTag);
 }
