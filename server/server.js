@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
-dotenv.config({ path: "../.env" });
+dotenv.config({ path: "/etc/secrets/.env" });
 
 const app = express();
 const port = process.env.PORT;;
@@ -35,4 +35,5 @@ app.post("/api/token", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
+
 
