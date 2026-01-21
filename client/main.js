@@ -46,8 +46,11 @@ async function setupDiscordSdk() {
 			code
 		})
 	});
-	const { access_token } = await response.json();
-
+	console.log(response.status);
+	const json = await response.json();
+	// const { access_token } = await response.json();
+	console.log("Response:", json);
+	const access_token = json.access_token;
 	console.log("Access Token:", access_token);
 	
 	auth = await discordSdk.commands.authenticate({
@@ -79,6 +82,7 @@ async function appendVoiceChannelName() {
 	textTag.innerText = `Activity Channel: "${activityChannelName}"`;
 	app.appendChild(textTag);
 }
+
 
 
 
