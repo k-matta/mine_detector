@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        origin: 'https://mine_detector.onrender.com',
+        origin: 'https://mine-detector.onrender.com',
         changeOrigin: true,
         secure: false,
         ws: true,
@@ -17,6 +17,7 @@ export default defineConfig({
     },
   },
 });
+
 
 
 
