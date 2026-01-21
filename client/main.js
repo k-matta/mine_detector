@@ -35,7 +35,7 @@ async function setupDiscordSdk() {
 		],
 	});
 	
-	const response = await fetch("https://mine-detector.onrender.com/api/token", {
+	const response = await fetch("/api/token", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -75,6 +75,7 @@ async function appendVoiceChannelName() {
 	textTag.innerText = `Activity Channel: "${activityChannelName}"`;
 	app.appendChild(textTag);
 }
+
 
 
 
