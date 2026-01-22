@@ -77,11 +77,15 @@ button:focus-visible {
 #main-board {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .row {
   display: flex;
   flex-direction: row;
+  width: 100%;
+  padding: 0px;
+  margin: 0px;
 }
 
 .grid {
@@ -104,6 +108,7 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
 
 
 
