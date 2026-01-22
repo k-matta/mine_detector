@@ -20,7 +20,17 @@ setupDiscordSdk().then(() => {
 
 	appendVoiceChannelName();
 	appendGuildAvatar();
-	generateBoard(20, 10);
+	const board = generateBoard(20, 10);
+	let boardHTML = "<div id='main-board'>";
+	for (let i = 0; i < 20; i++) {
+		boardHTML += "<div class='row'>"
+		for (let j = 0; j < 20; j++) {
+			boardHTML += `<div class='grid'>${board[i][j] === 9 ? '💣' : board[i][j]}</div>`;
+		}
+		boardHTML += '</div>';
+	}
+	boardHTML += "</div>";
+	app.innerHTML = boardHTML;
 });
 
 async function setupDiscordSdk() {
@@ -127,14 +137,14 @@ function generateBoard(size, mines, seed = null) {
 			const row = [];
 			for (let j = 0; j < size; j++) {
 				if (row[j] == 9) continue;
-				const bomb = Math.floor(rand()*10);
-				if (bomb == 9) {
+				const bomb = Math.floor(rand()*size*size/mines);
+				if (bomb == (size*size/mines)-1) {
 					bombs++;
 				}
 				try {
 					board[i][j]
 				} catch(e) {
-					row.push(bomb);
+					row.push(9);
 				}
 			}
 			if (board.length == size) continue;
@@ -144,8 +154,6 @@ function generateBoard(size, mines, seed = null) {
 	for (let i = 0; i < size; i++) {
 		for (let j = 0; j < size; j++) {
 			let adjacent = 0;
-			console.log("Board: ", board);
-			console.log(board.length, board[0].length);
 			if (board[i][j] == 9) continue;
 			for (let di = -1; di < 2; di++) {
 				try {
@@ -166,6 +174,7 @@ function generateBoard(size, mines, seed = null) {
 	}
 	console.log(board);
 }
+
 
 
 
