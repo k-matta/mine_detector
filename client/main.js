@@ -12,19 +12,25 @@ const discordSdk = new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
 setupDiscordSdk().then(() => {
 	console.log("Discord SDK ready.");
 
-	appendVoiceChannelName();
-	appendGuildAvatar();
+	// appendVoiceChannelName();
+	// appendGuildAvatar();
 	const board = generateBoard(20, 50);
-	let boardHTML = "<div id='main-board'>";
+	const outerBoard = document.createElement("div");
+	outerBoard.id = "main-baord";
+	app.appendChild(outerBoard);
 	for (let i = 0; i < 20; i++) {
-		boardHTML += "<div class='row'>"
+		const row = document.createElement("div");
+		row.classList.add('row');
 		for (let j = 0; j < 20; j++) {
-			boardHTML += `<div onclick='clickGrid()' class='grid' id='${i}-${j}'>🟦</div>`;
+			const gridItem = document.createElement("div");
+			gridItem.classList.add("grid");
+			gridItem.id = `${i}-${j}`;
+			gridItem.addEventListener('click', clickGrid);
+			gridItem.innerHTML = '🟦';
+			row.appendChild(gridItem);	
 		}
-		boardHTML += '</div>';
+		outerBoard.appendChild(row);
 	}
-	boardHTML += "</div>";
-	app.innerHTML = boardHTML;
 });
 
 async function setupDiscordSdk() {
@@ -186,3 +192,4 @@ function clickGrid() {
 	}
 	this.removeEventListener(clickGrid);
 }
+
