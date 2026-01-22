@@ -3,6 +3,7 @@ import rocketLogo from '/rocket.png'
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 
 const app = document.getElementById("app");
+
 let auth;
 console.log(import.meta.env.VITE_DISCORD_CLIENT_ID);
 app.innerHTML = `
@@ -103,3 +104,28 @@ async function appendGuildAvatar() {
 	}
 }
 
+function mulberry32(seed) {
+	return function() {
+		let t = (seed += 0x6D2B79F5);
+		t = Math.imul(t ^ (t >>> 15), t | 1);
+		t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+	};
+}
+
+async function generateBoard(size, seed = null) {
+	if (!seed) {
+		const curDate = new Date();
+		seed = curDate.getTime();
+	}
+	const rand = mulberry32(seed);
+	board = [];
+	for (let i = 0; i < size; i++) {
+		const row = [];
+		for (let j = 0; j < size; j++) {
+			row.push(Math.floor(rand()*10));
+		}
+		board.push(row);
+	}
+	console.log(board);
+}
