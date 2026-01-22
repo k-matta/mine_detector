@@ -6,7 +6,7 @@ const app = document.getElementById("app");
 const symbols = ["⬜","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","💣"];
 
 let auth;
-
+let board;
 const discordSdk = new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
 
 setupDiscordSdk().then(() => {
@@ -14,7 +14,7 @@ setupDiscordSdk().then(() => {
 
 	// appendVoiceChannelName();
 	// appendGuildAvatar();
-	const board = generateBoard(20, 50);
+	board = generateBoard(20, 50);
 	const outerBoard = document.createElement("div");
 	outerBoard.id = "main-baord";
 	app.appendChild(outerBoard);
@@ -192,4 +192,5 @@ function clickGrid() {
 	}
 	this.removeEventListener(clickGrid);
 }
+
 
