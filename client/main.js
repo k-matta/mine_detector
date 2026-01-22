@@ -3,7 +3,7 @@ import rocketLogo from '/rocket.png'
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 
 const app = document.getElementById("app");
-const symbols = [⬜,1️⃣,2️⃣,3️⃣,4️⃣,5️⃣,6️⃣,7️⃣,8️⃣,💣];
+const symbols = ["⬜","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","💣"];
 
 let auth;
 console.log(import.meta.env.VITE_DISCORD_CLIENT_ID);
@@ -177,6 +177,7 @@ function generateBoard(size, mines, seed = null) {
 	console.log(board);
 	return board;
 }
+
 
 
 
