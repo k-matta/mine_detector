@@ -2,9 +2,10 @@ import './style.css'
 import rocketLogo from '/rocket.png'
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 
+const app = document.getElementById("app");
 let auth;
 console.log(import.meta.env.VITE_DISCORD_CLIENT_ID);
-document.querySelector('#app').innerHTML = `
+app.innerHTML = `
   <div>
 	<img src="${rocketLogo}" class="logo" alt="Discord" />
 	<h1>Hello, World!</h1>
@@ -17,6 +18,7 @@ setupDiscordSdk().then(() => {
 	console.log("Discord SDK ready.");
 
 	appendVoiceChannelName();
+	appendGuildAvatar();
 });
 
 async function setupDiscordSdk() {
@@ -63,8 +65,6 @@ async function setupDiscordSdk() {
 }
 
 async function appendVoiceChannelName() {
-	const app = document.getElementById("app");
-
 	let activityChannelName = "Unknown";
 
 	// Requesting the channel in GDMs (when the guild ID is null)
@@ -83,10 +83,22 @@ async function appendVoiceChannelName() {
 	app.appendChild(textTag);
 }
 
+async functino appendGuildAvatar() {
+	const guilds = await fetch("https://discord.com/api/v10/users/@me/guilds", {
+		headers: {
+			Authorization: `Bearer ${auth.access_token}`,
+			"Content-Type": 'application/json'
+		}
+	}).then((response) => response.json());
 
+	const currentGuild = guilds.find((g) => g.id === discordSdk.guildId);
 
-
-
-
-
-
+	if (currentGuild != null) {
+		const guildImg = document.createElement('img');
+		guildImg.setAttribute('src', `https://cdn.discordapp.com/icons/${currentGuild.id}/${currentGuild.icon}.webp?size=128`);
+		guildImg.setAttribute('width', '128px');
+		guildImg.setAttribute('height', '128px');
+		guildImg.setAttribute('style', 'border-radius: 50%;');
+		app.appendChild(guildImg);
+	}
+}
