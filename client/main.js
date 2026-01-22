@@ -145,7 +145,7 @@ function generateBoard(size, mines, seed = null) {
 		for (let j = 0; j < size; j++) {
 			let adjacent = 0;
 			console.log("Board: ", board);
-			console.log(board.length, board[0].length();
+			console.log(board.length, board[0].length);
 			if (board[i][j] == 9) continue;
 			for (let di = -1; di < 2; di++) {
 				try {
@@ -166,6 +166,7 @@ function generateBoard(size, mines, seed = null) {
 	}
 	console.log(board);
 }
+
 
 
 
