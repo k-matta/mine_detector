@@ -84,6 +84,14 @@ button:focus-visible {
   flex-direction: row;
 }
 
+.grid {
+  background: darkgrey;
+  border: black;
+  padding: 2;
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -96,5 +104,6 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
 
 
