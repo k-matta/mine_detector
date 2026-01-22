@@ -126,7 +126,7 @@ function generateBoard(size, mines, seed = null) {
 		const row = [];
 		for (let j = 0; j < size; j++) {
 			if (row[j] == 9) continue;
-			const bomb = Math.floor(rand()*10));
+			const bomb = Math.floor(rand()*10);
 			bomb == 9 ? row.push(bomb), bombs++ : continue; 
 		}
 		board.push(row);
@@ -154,6 +154,7 @@ function generateBoard(size, mines, seed = null) {
 	}
 	console.log(board);
 }
+
 
 
 
