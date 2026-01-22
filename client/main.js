@@ -176,18 +176,27 @@ function clickGrid() {
 	this.innerHTML = symbols[board[i][j]];
 	if (!board[i][j]) {
 		try {
+			console.log(`${i-1}-${j}`);
+			console.log(document.getElementById(`${i-1}-${j}`));
 			document.getElementById(`${i-1}-${j}`).click();
 		} catch (e) {
 		} try {
+			console.log(`${i-1}-${j}`);
+			console.log(document.getElementById(`${i-1}-${j}`));
 			document.getElementById(`${i}-${j-1}`).click();
 		} catch(e) {
 		} try {
+			console.log(`${i-1}-${j}`);
+			console.log(document.getElementById(`${i-1}-${j}`));
 			document.getElementById(`${i+1}-${j}`).click();
 		} catch(e) {
 		} try {
+			console.log(`${i-1}-${j}`);
+			console.log(document.getElementById(`${i-1}-${j}`));
 			document.getElementById(`${i}-${j+1}`).click();
 		} catch(e) {
 		}
 	}
 	this.removeEventListener("click", clickGrid);
 }
+
