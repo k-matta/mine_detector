@@ -20,7 +20,7 @@ setupDiscordSdk().then(() => {
 
 	appendVoiceChannelName();
 	appendGuildAvatar();
-	generateBoard(20);
+	generateBoard(20, 10);
 });
 
 async function setupDiscordSdk() {
@@ -114,21 +114,46 @@ function mulberry32(seed) {
 	};
 }
 
-function generateBoard(size, seed = null) {
+function generateBoard(size, mines, seed = null) {
 	if (!seed) {
 		const curDate = new Date();
 		seed = curDate.getTime();
 	}
 	const rand = mulberry32(seed);
 	const board = [];
-	for (let i = 0; i < size; i++) {
+	let bombs = 0;
+	for (let i = 0; bombs < mines; i = (i+=1)%size) {
 		const row = [];
 		for (let j = 0; j < size; j++) {
-			row.push(Math.floor(rand()*10));
+			if (row[j] == 9) continue;
+			const bomb = Math.floor(rand()*10));
+			bomb == 9 ? row.push(bomb), bombs++ : continue; 
 		}
 		board.push(row);
 	}
+	for (let i = 0; i < size; i++) {
+		for (let j = 0; j < size; j++) {
+			let adjacent = 0;
+			if (board[i][j] == 9) continue;
+			for (let di = -1; di < 2; di++) {
+				try {
+					for (let dj = -1; dj < 2; dj++) {
+						if (!dj && !di) continue;
+						try {
+							if (board[i+di][j+dj] == 9) adjacent++;
+						} catch (e) {
+							continue;
+						}
+					}
+				} catch(e) {
+					continue;
+				}
+			}
+			board[i][j] = adjacent;			
+		}
+	}
 	console.log(board);
 }
+
 
 
