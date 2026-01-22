@@ -6,13 +6,6 @@ const app = document.getElementById("app");
 const symbols = ["⬜","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","💣"];
 
 let auth;
-console.log(import.meta.env.VITE_DISCORD_CLIENT_ID);
-app.innerHTML = `
-  <div>
-	<img src="${rocketLogo}" class="logo" alt="Discord" />
-	<h1>Hello, World!</h1>
-  </div>
-`;
 
 const discordSdk = new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
 
@@ -26,7 +19,7 @@ setupDiscordSdk().then(() => {
 	for (let i = 0; i < 20; i++) {
 		boardHTML += "<div class='row'>"
 		for (let j = 0; j < 20; j++) {
-			boardHTML += `<div class='grid' i='${i}' j='${j}'>${symbols[board[i][j]]}</div>`;
+			boardHTML += `<div onclick='clickGrid()' class='grid' id='${i}-${j}'>🟦</div>`;
 		}
 		boardHTML += '</div>';
 	}
@@ -36,7 +29,6 @@ setupDiscordSdk().then(() => {
 
 async function setupDiscordSdk() {
 	await discordSdk.ready();
-	console.log("Discord SDK ready.");
 
 	const { code } = await discordSdk.commands.authorize({
 		client_id: import.meta.env.VITE_DISCORD_CLIENT_ID,
@@ -49,8 +41,6 @@ async function setupDiscordSdk() {
 			"applications.commands"
 		],
 	});
-
-	console.log("Code:", code);
 	
 	const response = await fetch("/api/token", {
 		method: "POST",
@@ -61,13 +51,12 @@ async function setupDiscordSdk() {
 			code
 		})
 	});
-	console.log("Status:", response.status);
+
 	const json = await response.json();
 	// const { access_token } = await response.json();
-	console.log("Response:", JSON.stringify(json));
+
 	const access_token = json.access_token;
-	console.log("Access Token:", access_token);
-	
+
 	auth = await discordSdk.commands.authenticate({
 		access_token
 	});
@@ -85,8 +74,6 @@ async function appendVoiceChannelName() {
 	if (discordSdk.channelId != null && discordSdk.guildId != null) {
 		const channel = await discordSdk.commands.getChannel({channel_id: discordSdk.channelId});
 		if (channel.name != null) {
-			console.log("Channel Name:", channel.name);
-			console.log(channel);
 			activityChannelName = channel.name;
 		}
 	}
@@ -174,20 +161,28 @@ function generateBoard(size, mines, seed = null) {
 			board[i][j] = adjacent;			
 		}
 	}
-	console.log(board);
 	return board;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+function clickGrid() {
+	const i = this.id.split("-")[0];
+	const j = this.id.split("-")[1];
+	this.innerHTML = symbols[board[i][j]];
+	if (!board[i][j]) {
+		for (let di = -1; di < 2; di++) {
+			try {
+				for (let dj = -1; dj < 2; dj++) {
+					if (!dj && !di) continue;
+					try {
+						document.getElementById(`${i+di}-${j+dj}`).click();
+					} catch (e) {
+						continue;
+					}
+				}
+			} catch(e) {
+				continue;
+			}
+		}
+	}
+	this.removeEventListener(clickGrid);
+}
