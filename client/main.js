@@ -175,23 +175,25 @@ function clickGrid() {
 	const j = this.id.split("-")[1];
 	this.innerHTML = symbols[board[i][j]];
 	if (!board[i][j]) {
-		for (let di = -1; di < 2; di++) {
-			try {
-				for (let dj = -1; dj < 2; dj++) {
-					if (!dj && !di) continue;
-					try {
-						document.getElementById(`${i+di}-${j+dj}`).click();
-					} catch (e) {
-						continue;
-					}
-				}
-			} catch(e) {
-				continue;
-			}
+		try {
+			document.getElementById(`${i-1}-${j}`).click();
+		} catch (e) {
+		try {
+			document.getElementById(`${i}-${j-1}`).click();
+		} catch(e) {
+		}
+		try {
+			document.getElementById(`${i+1}-${j}`).click();
+		} catch(e) {
+		}
+		try {
+			document.getElementById(`${i}-${j+1}`).click();
+		} catch(e) {
 		}
 	}
 	this.removeEventListener("click", clickGrid);
 }
+
 
 
 
