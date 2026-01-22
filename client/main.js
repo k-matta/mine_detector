@@ -140,11 +140,12 @@ function generateBoard(size, mines, seed = null) {
 				const bomb = Math.floor(rand()*size*size/mines);
 				if (bomb == (size*size/mines)-1) {
 					bombs++;
+					bomb = 9;
 				}
 				try {
 					board[i][j]
 				} catch(e) {
-					row.push(9);
+					row.push(bomb);
 				}
 			}
 			if (board.length == size) continue;
@@ -173,7 +174,9 @@ function generateBoard(size, mines, seed = null) {
 		}
 	}
 	console.log(board);
+	return board;
 }
+
 
 
 
