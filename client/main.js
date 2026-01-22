@@ -83,7 +83,7 @@ async function appendVoiceChannelName() {
 	app.appendChild(textTag);
 }
 
-async functino appendGuildAvatar() {
+async function appendGuildAvatar() {
 	const guilds = await fetch("https://discord.com/api/v10/users/@me/guilds", {
 		headers: {
 			Authorization: `Bearer ${auth.access_token}`,
@@ -102,3 +102,4 @@ async functino appendGuildAvatar() {
 		app.appendChild(guildImg);
 	}
 }
+
