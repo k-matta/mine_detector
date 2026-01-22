@@ -26,7 +26,7 @@ setupDiscordSdk().then(() => {
 	for (let i = 0; i < 20; i++) {
 		boardHTML += "<div class='row'>"
 		for (let j = 0; j < 20; j++) {
-			boardHTML += `<div class='grid'>${symbols[board[i][j]]}</div>`;
+			boardHTML += `<div class='grid' i='${i}' j='${j}'>${symbols[board[i][j]]}</div>`;
 		}
 		boardHTML += '</div>';
 	}
@@ -177,6 +177,7 @@ function generateBoard(size, mines, seed = null) {
 	console.log(board);
 	return board;
 }
+
 
 
 
