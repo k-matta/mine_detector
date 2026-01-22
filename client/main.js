@@ -181,22 +181,21 @@ function clickGrid() {
 			document.getElementById(`${i-1}-${j}`).click();
 		} catch (e) {
 		} try {
-			console.log(`${i-1}-${j}`);
-			console.log(document.getElementById(`${i-1}-${j}`));
+			console.log(`${i}-${j-1}`);
+			console.log(document.getElementById(`${i}-${j-1}`));
 			document.getElementById(`${i}-${j-1}`).click();
 		} catch(e) {
 		} try {
-			console.log(`${i-1}-${j}`);
-			console.log(document.getElementById(`${i-1}-${j}`));
+			console.log(`${i+1}-${j}`);
+			console.log(document.getElementById(`${i+1}-${j}`));
 			document.getElementById(`${i+1}-${j}`).click();
 		} catch(e) {
 		} try {
-			console.log(`${i-1}-${j}`);
-			console.log(document.getElementById(`${i-1}-${j}`));
+			console.log(`${i}-${j+1}`);
+			console.log(document.getElementById(`${i}-${j+1}`));
 			document.getElementById(`${i}-${j+1}`).click();
 		} catch(e) {
 		}
 	}
 	this.removeEventListener("click", clickGrid);
 }
-
