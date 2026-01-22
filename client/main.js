@@ -120,7 +120,7 @@ function generateBoard(size, seed = null) {
 		seed = curDate.getTime();
 	}
 	const rand = mulberry32(seed);
-	board = [];
+	const board = [];
 	for (let i = 0; i < size; i++) {
 		const row = [];
 		for (let j = 0; j < size; j++) {
@@ -130,4 +130,5 @@ function generateBoard(size, seed = null) {
 	}
 	console.log(board);
 }
+
 
