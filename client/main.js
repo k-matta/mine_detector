@@ -20,6 +20,7 @@ setupDiscordSdk().then(() => {
 
 	appendVoiceChannelName();
 	appendGuildAvatar();
+	generateBoard(20);
 });
 
 async function setupDiscordSdk() {
@@ -113,7 +114,7 @@ function mulberry32(seed) {
 	};
 }
 
-async function generateBoard(size, seed = null) {
+function generateBoard(size, seed = null) {
 	if (!seed) {
 		const curDate = new Date();
 		seed = curDate.getTime();
@@ -129,3 +130,4 @@ async function generateBoard(size, seed = null) {
 	}
 	console.log(board);
 }
+
