@@ -178,22 +178,16 @@ function clickGrid() {
 		try {
 			document.getElementById(`${i-1}-${j}`).click();
 		} catch (e) {
-		try {
+		} try {
 			document.getElementById(`${i}-${j-1}`).click();
 		} catch(e) {
-		}
-		try {
+		} try {
 			document.getElementById(`${i+1}-${j}`).click();
 		} catch(e) {
-		}
-		try {
+		} try {
 			document.getElementById(`${i}-${j+1}`).click();
 		} catch(e) {
 		}
 	}
 	this.removeEventListener("click", clickGrid);
 }
-
-
-
-
