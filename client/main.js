@@ -137,7 +137,7 @@ function generateBoard(size, mines, seed = null) {
 			const row = [];
 			for (let j = 0; j < size; j++) {
 				if (row[j] == 9) continue;
-				const bomb = Math.floor(rand()*size*size/mines);
+				let bomb = Math.floor(rand()*size*size/mines);
 				if (bomb == (size*size/mines)-1) {
 					bombs++;
 					bomb = 9;
@@ -176,6 +176,7 @@ function generateBoard(size, mines, seed = null) {
 	console.log(board);
 	return board;
 }
+
 
 
 
