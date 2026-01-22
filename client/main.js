@@ -3,6 +3,7 @@ import rocketLogo from '/rocket.png'
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 
 const app = document.getElementById("app");
+const symbols = [⬜,1️⃣,2️⃣,3️⃣,4️⃣,5️⃣,6️⃣,7️⃣,8️⃣,💣];
 
 let auth;
 console.log(import.meta.env.VITE_DISCORD_CLIENT_ID);
@@ -20,12 +21,12 @@ setupDiscordSdk().then(() => {
 
 	appendVoiceChannelName();
 	appendGuildAvatar();
-	const board = generateBoard(20, 10);
+	const board = generateBoard(20, 50);
 	let boardHTML = "<div id='main-board'>";
 	for (let i = 0; i < 20; i++) {
 		boardHTML += "<div class='row'>"
 		for (let j = 0; j < 20; j++) {
-			boardHTML += `<div class='grid'>${board[i][j] === 9 ? '💣' : board[i][j]}</div>`;
+			boardHTML += `<div class='grid'>${symbols[board[i][j]]}</div>`;
 		}
 		boardHTML += '</div>';
 	}
@@ -176,6 +177,7 @@ function generateBoard(size, mines, seed = null) {
 	console.log(board);
 	return board;
 }
+
 
 
 
