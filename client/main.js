@@ -122,7 +122,7 @@ function generateBoard(size, mines, seed = null) {
 	const rand = mulberry32(seed);
 	const board = [];
 	let bombs = 0;
-	for (let i = 0; bombs < mines; i = (i+=1)%size) {
+	for (let i = 0; bombs < mines; i = (i+1)%size) {
 		const row = [];
 		for (let j = 0; j < size; j++) {
 			if (row[j] == 9) continue;
@@ -157,6 +157,7 @@ function generateBoard(size, mines, seed = null) {
 	}
 	console.log(board);
 }
+
 
 
 
