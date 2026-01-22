@@ -190,7 +190,8 @@ function clickGrid() {
 			}
 		}
 	}
-	this.removeEventListener(clickGrid);
+	this.removeEventListener("click", clickGrid);
 }
+
 
 
