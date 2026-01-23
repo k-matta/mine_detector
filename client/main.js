@@ -171,41 +171,42 @@ function generateBoard(size, mines, seed = null) {
 }
 
 function clickGrid() {
-	const i = Number(this.id.split("-")[0]);
-	const j = Number(this.id.split("-")[1]);
-	this.innerHTML = symbols[board[i][j]];
-	const adjacent = [];
-	if (!board[i][j]) {
-		for (let di = -1; di < 2; di++) {
-			try {
-				for (let dj = -1; dj < 2; dj++) {
-					if (!dj && !di) continue;
-					try {
-						adjacent.push(document.getElementById(`${i+di}-${j+dj}`));
-					} catch (e) {
-						continue;
-					}
-				}
-			} catch(e) {
-				continue;
-			}
-		}
-	}
-	this.removeEventListener("click", clickGrid);
 	manageCalls(adjacent, this);
-	return adjacent;
 }
 
-function manageCalls(elements, source) {
+function manageCalls(source) {
 	const alrClicked = [source];
+	const elements = [source];
 	while (elements.length) {
-		const newElements = elements[0].click();
+		const current = elements[0];
+		const i = Number(current.id.split("-")[0]);
+		const j = Number(current.id.split("-")[1]);
+		current.innerHTML = symbols[board[i][j]];
+		const adjacent = [];
+		if (!board[i][j]) {
+			for (let di = -1; di < 2; di++) {
+				try {
+					for (let dj = -1; dj < 2; dj++) {
+						if (!dj && !di) continue;
+						try {
+							adjacent.push(document.getElementById(`${i+di}-${j+dj}`));
+						} catch (e) {
+							continue;
+						}
+					}
+				} catch(e) {
+					continue;
+				}
+			}
+		}
+		current.removeEventListener("click", clickGrid);
 		alrClicked.push(elements[0]);
 		elements.splice(0, 1);
-		for (const element of newElements) {
+		for (const element of adjacent) {
 			if (!elements.includes(element)) {
 				elements.push(element);
 			}
 		}
 	}
 }
+
