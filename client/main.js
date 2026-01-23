@@ -171,7 +171,7 @@ function generateBoard(size, mines, seed = null) {
 }
 
 function clickGrid() {
-	manageCalls(adjacent, this);
+	manageCalls(this);
 }
 
 function manageCalls(source) {
@@ -209,4 +209,5 @@ function manageCalls(source) {
 		}
 	}
 }
+
 
