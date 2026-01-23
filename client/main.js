@@ -171,8 +171,8 @@ function generateBoard(size, mines, seed = null) {
 }
 
 function clickGrid() {
-	const i = this.id.split("-")[0];
-	const j = this.id.split("-")[1];
+	const i = Number(this.id.split("-")[0]);
+	const j = Number(this.id.split("-")[1]);
 	this.innerHTML = symbols[board[i][j]];
 	if (!board[i][j]) {
 		try {
