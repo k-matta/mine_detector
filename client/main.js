@@ -185,7 +185,6 @@ function manageCalls(source) {
 		const i = Number(current.id.split("-")[0]);
 		const j = Number(current.id.split("-")[1]);
 		current.innerHTML = symbols[board[i][j]];
-		const adjacent = [];
 		if (!board[i][j]) {
 			for (let di = -1; di < 2; di++) {
 				for (let dj = -1; dj < 2; dj++) {
@@ -201,8 +200,11 @@ function manageCalls(source) {
 		}
 		current.removeEventListener("click", clickGrid);
 		alrClicked.push(elements[0]);
+		console.log(elements);
 		elements.splice(0, 1);
+		console.log(elements);
 	}
 }
+
 
 
