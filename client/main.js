@@ -175,12 +175,9 @@ function clickGrid() {
 }
 
 function manageCalls(source) {
-	console.log(source);
 	const alrClicked = [source];
 	const elements = [source];
-	console.log(elements.length);
 	while (elements.length) {
-		console.log(elements);
 		const current = elements[0];
 		const i = Number(current.id.split("-")[0]);
 		const j = Number(current.id.split("-")[1]);
@@ -200,11 +197,10 @@ function manageCalls(source) {
 		}
 		current.removeEventListener("click", clickGrid);
 		alrClicked.push(elements[0]);
-		console.log(elements);
 		elements.splice(0, 1);
-		console.log(elements);
 	}
 }
+
 
 
 
