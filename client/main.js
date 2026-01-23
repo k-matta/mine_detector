@@ -191,7 +191,7 @@ function manageCalls(source) {
 					if (!dj && !di) continue;
 					const next = document.getElementById(`${i+di}-${j+dj}`);
 					if (next) {
-						if (!elements.find((item) => next.id == item.id)) {
+						if (!alrClicked.find((item) => next.id == item.id)) {
 							elements.push(next);
 						}
 					}
@@ -205,6 +205,7 @@ function manageCalls(source) {
 		console.log(elements);
 	}
 }
+
 
 
 
