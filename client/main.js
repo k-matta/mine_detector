@@ -174,13 +174,14 @@ function clickGrid() {
 	const i = Number(this.id.split("-")[0]);
 	const j = Number(this.id.split("-")[1]);
 	this.innerHTML = symbols[board[i][j]];
+	const adjacent = [];
 	if (!board[i][j]) {
 		for (let di = -1; di < 2; di++) {
 			try {
 				for (let dj = -1; dj < 2; dj++) {
 					if (!dj && !di) continue;
 					try {
-						document.getElementById(`${i+di}-${j+dj}`).click();
+						adjacent.push(document.getElementById(`${i+di}-${j+dj}`));
 					} catch (e) {
 						continue;
 					}
@@ -191,4 +192,20 @@ function clickGrid() {
 		}
 	}
 	this.removeEventListener("click", clickGrid);
+	manageCalls(adjacent, this);
+	return adjacent;
+}
+
+function manageCalls(elements, source) {
+	const alrClicked = [source];
+	while (elements.length) {
+		const newElements = elements[0].click();
+		alrClicked.push(elements[0]);
+		elements.splice(0, 1);
+		for (const element of newElements) {
+			if (!elements.includes(element)) {
+				elements.push(element);
+			}
+		}
+	}
 }
