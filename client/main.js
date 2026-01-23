@@ -12,8 +12,8 @@ const discordSdk = new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
 setupDiscordSdk().then(() => {
 	console.log("Discord SDK ready.");
 
-	// appendVoiceChannelName();
-	// appendGuildAvatar();
+	appendVoiceChannelName();
+	appendGuildAvatar();
 	board = generateBoard(20, 50);
 	const outerBoard = document.createElement("div");
 	outerBoard.id = "main-baord";
@@ -62,10 +62,11 @@ async function setupDiscordSdk() {
 	// const { access_token } = await response.json();
 
 	const access_token = json.access_token;
-
+	console.log("Access Token:", access_token);
 	auth = await discordSdk.commands.authenticate({
 		access_token
 	});
+	console.log(auth);
 	
 	if (auth == null) {
 		throw new Error("Authenticate command failed");
@@ -200,3 +201,4 @@ function manageCalls(source) {
 		elements.splice(0, 1);
 	}
 }
+
