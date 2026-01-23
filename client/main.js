@@ -200,8 +200,3 @@ function manageCalls(source) {
 		elements.splice(0, 1);
 	}
 }
-
-
-
-
-
