@@ -14,7 +14,7 @@ setupDiscordSdk().then(() => {
 
 	// appendVoiceChannelName();
 	// appendGuildAvatar();
-	board = generateBoard(20, 50);
+	board = generateBoard(20, 75);
 	const outerBoard = document.createElement("div");
 	outerBoard.id = "main-baord";
 	app.appendChild(outerBoard);
@@ -200,3 +200,4 @@ function manageCalls(source) {
 		elements.splice(0, 1);
 	}
 }
+
