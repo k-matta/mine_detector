@@ -185,29 +185,20 @@ function manageCalls(source) {
 		const adjacent = [];
 		if (!board[i][j]) {
 			for (let di = -1; di < 2; di++) {
-				try {
-					for (let dj = -1; dj < 2; dj++) {
-						if (!dj && !di) continue;
-						try {
-							adjacent.push(document.getElementById(`${i+di}-${j+dj}`));
-						} catch (e) {
-							continue;
+				for (let dj = -1; dj < 2; dj++) {
+					if (!dj && !di) continue;
+					const next = document.getElementById(`${i+di}-${j+dj}`);
+					if (next) {
+						if (!elements.find((item) => next.id == item.id)) {
+							elements.push(next);
 						}
 					}
-				} catch(e) {
-					continue;
 				}
 			}
 		}
 		current.removeEventListener("click", clickGrid);
 		alrClicked.push(elements[0]);
 		elements.splice(0, 1);
-		for (const element of adjacent) {
-			if (!elements.includes(element)) {
-				elements.push(element);
-			}
-		}
 	}
 }
-
 
