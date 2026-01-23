@@ -14,7 +14,7 @@ setupDiscordSdk().then(() => {
 
 	// appendVoiceChannelName();
 	// appendGuildAvatar();
-	board = generateBoard(20, 75);
+	board = generateBoard(20, 50);
 	const outerBoard = document.createElement("div");
 	outerBoard.id = "main-baord";
 	app.appendChild(outerBoard);
@@ -188,7 +188,7 @@ function manageCalls(source) {
 					if (!dj && !di) continue;
 					const next = document.getElementById(`${i+di}-${j+dj}`);
 					if (next) {
-						if (!alrClicked.find((item) => next.id == item.id)) {
+						if ((!alrClicked.find((item) => next.id == item.id)) && (!elements.find((item) => next.id == item.id))) {
 							elements.push(next);
 						}
 					}
@@ -200,4 +200,3 @@ function manageCalls(source) {
 		elements.splice(0, 1);
 	}
 }
-
