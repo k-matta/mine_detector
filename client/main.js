@@ -221,12 +221,18 @@ function endGame() {
 	for (const gridItem of Array(document.getElementsByClassName("grid"))) {
 		console.log(gridItem.innerHTML, gridItem.innerHTML == '🟦');
 		if (gridItem.innerHTML == '🟦') {
+			console.log("If successful");
 			gridItem.removeEventListener("click", clickGrid);
-			gridItem.innerHTML = symbols[board[Number(gridItem.id.split("-")[0])][Number(gridItem.id.split("-")[1])]];
-			lose = true;
+			console.log("Removed");
+			const i = Number(gridItem.id.split("-")[0]);
+			const j = Number(gridItem.id.split("-")[1]);
+			gridItem.innerHTML = symbols[board[i][j]];
+			console.log("Changed");
 		}
 	}
+	lose = true;
 }
+
 
 
 
