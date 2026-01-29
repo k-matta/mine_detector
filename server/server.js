@@ -26,6 +26,7 @@ app.post("/api/token", async (req, res) => {
   });
 
   // Retrieve the access_token from the response
+  console.log(response);
   const { access_token } = await response.json();
 
   // Return the access_token to our client as { access_token: "..."}
@@ -35,5 +36,6 @@ app.post("/api/token", async (req, res) => {
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
+
 
 
