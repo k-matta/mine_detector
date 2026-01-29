@@ -181,7 +181,7 @@ function manageCalls(source) {
 	const i = Number(source.id.split("-")[0]);
 	const j = Number(source.id.split("-")[1]);
 	console.log("COORDS:", i, j);
-	console.log("NUMBER:", board[i][j]);
+	console.log("NUMBER:", board[i][j], typeof(board[i][j]);
 	if (board[i][j] == 9) {
 		source.innerHTML = symbols[9];
 		source.removeEventListener("click", clickGrid);
@@ -223,6 +223,7 @@ function endGame() {
 		}
 	}
 }
+
 
 
 
