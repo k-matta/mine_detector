@@ -26,6 +26,7 @@ setupDiscordSdk().then(() => {
 		for (let j = 0; j < 20; j++) {
 			const gridItem = document.createElement("div");
 			gridItem.classList.add("grid");
+			gridItem.classList.add("covered");
 			gridItem.id = `${i}-${j}`;
 			gridItem.addEventListener('click', clickGrid);
 			gridItem.innerHTML = '🟦';
@@ -190,20 +191,20 @@ function manageCalls(source) {
 		endGame();
 		return;
 	}
-	const alrClicked = [source];
 	const elements = [source];
 	while (elements.length) {
 		const current = elements[0];
 		const i = Number(current.id.split("-")[0]);
 		const j = Number(current.id.split("-")[1]);
 		current.innerHTML = symbols[board[i][j]];
+		current.classList.remove("covered");
 		if (!board[i][j]) {
 			for (let di = -1; di < 2; di++) {
 				for (let dj = -1; dj < 2; dj++) {
 					if (!dj && !di) continue;
 					const next = document.getElementById(`${i+di}-${j+dj}`);
 					if (next) {
-						if ((!alrClicked.find((item) => next.id == item.id)) && (!elements.find((item) => next.id == item.id))) {
+						if ((next.classList.contains("covered")) && (!elements.find((item) => next.id == item.id))) {
 							elements.push(next);
 						}
 					}
@@ -211,14 +212,15 @@ function manageCalls(source) {
 			}
 		}
 		current.removeEventListener("click", clickGrid);
-		alrClicked.push(elements[0]);
 		elements.splice(0, 1);
 	}
 }
 
 function endGame() {
 	console.log("Endgame");
-	for (const gridItem of Array(document.getElementsByClassName("grid"))) {
+	const squares = document.getElementsByClassName("covered")
+	for (const i = 0; i < squares.length; i++) {
+		const gridItem = squares[i];
 		console.log(gridItem.innerHTML, gridItem.innerHTML == '🟦');
 		if (gridItem.innerHTML == '🟦') {
 			console.log("If successful");
@@ -232,6 +234,7 @@ function endGame() {
 	}
 	lose = true;
 }
+
 
 
 
