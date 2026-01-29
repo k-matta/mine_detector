@@ -178,8 +178,8 @@ function clickGrid() {
 }
 
 function manageCalls(source) {
-	const i = Number(current.id.split("-")[0]);
-	const j = Number(current.id.split("-")[1]);
+	const i = Number(source.id.split("-")[0]);
+	const j = Number(source.id.split("-")[1]);
 	console.log("COORDS:", i, j);
 	console.log("NUMBER:", board[i][j]);
 	if (board[i][j] == 9) {
@@ -223,5 +223,6 @@ function endGame() {
 		}
 	}
 }
+
 
 
