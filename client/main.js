@@ -182,7 +182,9 @@ function manageCalls(source) {
 	const j = Number(source.id.split("-")[1]);
 	console.log("COORDS:", i, j);
 	console.log("NUMBER:", board[i][j], typeof(board[i][j]));
+	console.log(board[i][j] == 9);
 	if (board[i][j] == 9) {
+		consoe.log("Entered IF");
 		source.innerHTML = symbols[9];
 		source.removeEventListener("click", clickGrid);
 		endGame();
@@ -215,7 +217,9 @@ function manageCalls(source) {
 }
 
 function endGame() {
+	console.log("Endgame");
 	for (const gridItem of document.getElementsByClassName("grid")) {
+		console.log(gridItem.innerHTML, gridItem.innerHTML == '🟦');
 		if (gridItem.innerHTML == '🟦') {
 			gridItem.removeEventListener("click", clickGrid);
 			gridItem.innerHTML = symbols[board[Number(source.id.split("-")[0])][source.id.split("-")[1]]];
@@ -223,6 +227,7 @@ function endGame() {
 		}
 	}
 }
+
 
 
 
