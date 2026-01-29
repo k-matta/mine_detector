@@ -7,6 +7,8 @@ const symbols = ["⬜","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️�
 
 let auth;
 let board;
+let inGame = true;
+let lose = false;
 const discordSdk = new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
 
 setupDiscordSdk().then(() => {
@@ -176,6 +178,12 @@ function clickGrid() {
 }
 
 function manageCalls(source) {
+	if (board[Number(source.id.split("-")[0])][source.id.split("-")[1]] == 9) {
+		source.innerHTML = symbols[9];
+		source.removeEventListener("click", clickGrid);
+		endGame();
+		return;
+	}
 	const alrClicked = [source];
 	const elements = [source];
 	while (elements.length) {
@@ -202,3 +210,12 @@ function manageCalls(source) {
 	}
 }
 
+function endGame() {
+	for (const gridItem of document.getElementsByClassName("grid")) {
+		if (gridItem.innerHTML == '🟦') {
+			gridItem.removeEventListener("click", clickGrid);
+			gridItem.innerHTML = symbols[board[Number(source.id.split("-")[0])][source.id.split("-")[1]]];
+			lose = true;
+		}
+	}
+}
