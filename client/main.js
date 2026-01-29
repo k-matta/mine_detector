@@ -184,7 +184,7 @@ function manageCalls(source) {
 	console.log("NUMBER:", board[i][j], typeof(board[i][j]));
 	console.log(board[i][j] == 9);
 	if (board[i][j] == 9) {
-		consoe.log("Entered IF");
+		console.log("Entered IF");
 		source.innerHTML = symbols[9];
 		source.removeEventListener("click", clickGrid);
 		endGame();
@@ -227,6 +227,7 @@ function endGame() {
 		}
 	}
 }
+
 
 
 
