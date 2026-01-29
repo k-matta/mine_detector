@@ -218,15 +218,16 @@ function manageCalls(source) {
 
 function endGame() {
 	console.log("Endgame");
-	for (const gridItem of document.getElementsByClassName("grid")) {
+	for (const gridItem of Array(document.getElementsByClassName("grid"))) {
 		console.log(gridItem.innerHTML, gridItem.innerHTML == '🟦');
 		if (gridItem.innerHTML == '🟦') {
 			gridItem.removeEventListener("click", clickGrid);
-			gridItem.innerHTML = symbols[board[Number(source.id.split("-")[0])][source.id.split("-")[1]]];
+			gridItem.innerHTML = symbols[board[Number(gridItem.id.split("-")[0])][Number(gridItem.id.split("-")[1])]];
 			lose = true;
 		}
 	}
 }
+
 
 
 
