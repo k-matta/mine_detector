@@ -94,6 +94,7 @@ button:focus-visible {
   padding: 2;
   flex-grow: 1;
   flex-shrink: 0;
+  user-select: none;
 }
 
 @media (prefers-color-scheme: light) {
@@ -108,6 +109,7 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
 
 
 
