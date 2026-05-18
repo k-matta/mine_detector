@@ -46,7 +46,7 @@ app.post("/api/token", async (req, res) => {
 
 	// Retrieve the access_token from the response
 	const { access_token } = await response.json();
-
+	console.log(access_token);
 	// Return the access_token to our client as { access_token: "..."}
 	res.send({access_token});
 });

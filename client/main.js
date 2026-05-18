@@ -55,9 +55,7 @@ setupDiscordSdk().then(() => {
 });
 
 async function setupDiscordSdk() {
-	console.log("Readying...");
 	await discordSdk.ready();
-	console.log("ready!")
 	const { code } = await discordSdk.commands.authorize({
 		client_id: import.meta.env.VITE_DISCORD_CLIENT_ID,
 		response_type: "code",
@@ -69,7 +67,6 @@ async function setupDiscordSdk() {
 			"applications.commands"
 		],
 	});
-	console.log(code)
 	const response = await fetch("/api/token", {
 		method: "POST",
 		headers: {
