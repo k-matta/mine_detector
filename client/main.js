@@ -55,6 +55,7 @@ setupDiscordSdk().then(() => {
 });
 
 async function setupDiscordSdk() {
+	console.log("Readying...");
 	await discordSdk.ready();
 	console.log("ready!")
 	const { code } = await discordSdk.commands.authorize({
