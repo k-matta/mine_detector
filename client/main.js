@@ -1,39 +1,57 @@
-import './style.css'
-import rocketLogo from '/rocket.png'
+// import './style.css'
+// import rocketLogo from '/rocket.png'
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 
-const app = document.getElementById("app");
-const symbols = ["⬜","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","💣"];
-
-let auth;
-let board;
-let inGame = true;
-let lose = false;
 const discordSdk = new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
 
 setupDiscordSdk().then(() => {
 	console.log("Discord SDK ready.");
 
-	appendVoiceChannelName();
-	appendGuildAvatar();
-	board = generateBoard(20, 50);
-	const outerBoard = document.createElement("div");
-	outerBoard.id = "main-baord";
-	app.appendChild(outerBoard);
-	for (let i = 0; i < 20; i++) {
-		const row = document.createElement("div");
-		row.classList.add('row');
-		for (let j = 0; j < 20; j++) {
-			const gridItem = document.createElement("div");
-			gridItem.classList.add("grid");
-			gridItem.classList.add("covered");
-			gridItem.id = `${i}-${j}`;
-			gridItem.addEventListener('click', clickGrid);
-			gridItem.innerHTML = '🟦';
-			row.appendChild(gridItem);	
-		}
-		outerBoard.appendChild(row);
-	}
+	document.body = `<button type="button" id="over-show">Show</button>
+	<section id="menu">
+		<h1>Welcome to Mine-Detector!</h1>
+		<menu>
+			<button type="button" id="standard">Start Game!</button>
+			<button type="button" id="custom">Custom Game!</button>
+			<button type="button" id="pvp">Online Game!</button>
+		</menu>
+	</section>
+	<div style="display: none;" id="app">
+		<section id="hud">
+			<div id="time"></div>
+			<button type="button" id="pause">||</button>
+			<button type="button" id="play">></button>
+			<div id="flags">
+				<div id="flag-icon">🚩</div>
+				<div id="flags-remaining"></div>
+			</div>
+		</section>
+	</div>
+	<form id="c-form">
+		<section class="c-input">
+			<label for="size">Grid Size:</label>
+			<input type="range" id="size" min="10" max="50" step="1" value="20"/>
+			<p id="size-display">20</p>
+		</section>
+		<section class="c-input">
+			<label for="mines">Number of Mines:</label>
+			<input type="range" id="mines" min="10" max="200" step="1" value="50"/>
+			<p id="mines-display">50</p>
+		</section>
+		<section class="c-input">
+			<label for="seed">Board Seed:</label>
+			<input type="text" id="seed" pattern="\d+" value="" width="170px"/>
+		</section>
+		<br>
+		<button id="start-custom">Start Custom Game!</button>
+	</form>
+	<section id="over">
+		<button type="button" id="over-hide">Hide</button>
+		<h2>Game<br>Over!</h2>
+		<p>Seed: <span></span></p>
+		<button type="button" id="return">Return to Menu</button>
+	</section>
+	<script type="module" src="./game.js"></script>`
 });
 
 async function setupDiscordSdk() {
@@ -75,172 +93,3 @@ async function setupDiscordSdk() {
 		throw new Error("Authenticate command failed");
 	}
 }
-
-async function appendVoiceChannelName() {
-	let activityChannelName = "Unknown";
-
-	// Requesting the channel in GDMs (when the guild ID is null)
-	// Requires the dm_channels.read scope which requires DIscord approval
-	if (discordSdk.channelId != null && discordSdk.guildId != null) {
-		const channel = await discordSdk.commands.getChannel({channel_id: discordSdk.channelId});
-		if (channel.name != null) {
-			activityChannelName = channel.name;
-		}
-	}
-
-	const textTag = document.createElement('p');
-	textTag.innerText = `Activity Channel: "${activityChannelName}"`;
-	app.appendChild(textTag);
-}
-
-async function appendGuildAvatar() {
-	const guilds = await fetch("https://discord.com/api/v10/users/@me/guilds", {
-		headers: {
-			Authorization: `Bearer ${auth.access_token}`,
-			"Content-Type": 'application/json'
-		}
-	}).then((response) => response.json());
-
-	const currentGuild = guilds.find((g) => g.id === discordSdk.guildId);
-
-	if (currentGuild != null) {
-		const guildImg = document.createElement('img');
-		guildImg.setAttribute('src', `https://cdn.discordapp.com/icons/${currentGuild.id}/${currentGuild.icon}.webp?size=128`);
-		guildImg.setAttribute('width', '128px');
-		guildImg.setAttribute('height', '128px');
-		guildImg.setAttribute('style', 'border-radius: 50%;');
-		app.appendChild(guildImg);
-	}
-}
-
-function mulberry32(seed) {
-	return function() {
-		let t = (seed += 0x6D2B79F5);
-		t = Math.imul(t ^ (t >>> 15), t | 1);
-		t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-	};
-}
-
-function generateBoard(size, mines, seed = null) {
-	if (!seed) {
-		const curDate = new Date();
-		seed = curDate.getTime();
-	}
-	const rand = mulberry32(seed);
-	const board = [];
-	let bombs = 0;
-	while (bombs < mines) {
-		for (let i = 0; i < size; i++) {
-			const row = [];
-			for (let j = 0; j < size; j++) {
-				if (row[j] == 9) continue;
-				let bomb = Math.floor(rand()*size*size/mines);
-				if (bomb == (size*size/mines)-1) {
-					bombs++;
-					bomb = 9;
-				}
-				try {
-					board[i][j]
-				} catch(e) {
-					row.push(bomb);
-				}
-			}
-			if (board.length == size) continue;
-			board.push(row);
-		}
-	}
-	for (let i = 0; i < size; i++) {
-		for (let j = 0; j < size; j++) {
-			let adjacent = 0;
-			if (board[i][j] == 9) continue;
-			for (let di = -1; di < 2; di++) {
-				try {
-					for (let dj = -1; dj < 2; dj++) {
-						if (!dj && !di) continue;
-						try {
-							if (board[i+di][j+dj] == 9) adjacent++;
-						} catch (e) {
-							continue;
-						}
-					}
-				} catch(e) {
-					continue;
-				}
-			}
-			board[i][j] = adjacent;			
-		}
-	}
-	return board;
-}
-
-function clickGrid() {
-	manageCalls(this);
-}
-
-function manageCalls(source) {
-	const i = Number(source.id.split("-")[0]);
-	const j = Number(source.id.split("-")[1]);
-	console.log("COORDS:", i, j);
-	console.log("NUMBER:", board[i][j], typeof(board[i][j]));
-	console.log(board[i][j] == 9);
-	if (board[i][j] == 9) {
-		console.log("Entered IF");
-		source.innerHTML = symbols[9];
-		source.removeEventListener("click", clickGrid);
-		endGame();
-		return;
-	}
-	const elements = [source];
-	while (elements.length) {
-		const current = elements[0];
-		const i = Number(current.id.split("-")[0]);
-		const j = Number(current.id.split("-")[1]);
-		current.innerHTML = symbols[board[i][j]];
-		current.classList.remove("covered");
-		if (!board[i][j]) {
-			for (let di = -1; di < 2; di++) {
-				for (let dj = -1; dj < 2; dj++) {
-					if (!dj && !di) continue;
-					const next = document.getElementById(`${i+di}-${j+dj}`);
-					if (next) {
-						if ((next.classList.contains("covered")) && (!elements.find((item) => next.id == item.id))) {
-							elements.push(next);
-						}
-					}
-				}
-			}
-		}
-		current.removeEventListener("click", clickGrid);
-		elements.splice(0, 1);
-	}
-}
-
-function endGame() {
-	console.log("Endgame");
-	const squares = document.getElementsByClassName("covered")
-	for (const i = 0; i < squares.length; i++) {
-		const gridItem = squares[i];
-		console.log(gridItem.innerHTML, gridItem.innerHTML == '🟦');
-		if (gridItem.innerHTML == '🟦') {
-			console.log("If successful");
-			gridItem.removeEventListener("click", clickGrid);
-			console.log("Removed");
-			const i = Number(gridItem.id.split("-")[0]);
-			const j = Number(gridItem.id.split("-")[1]);
-			gridItem.innerHTML = symbols[board[i][j]];
-			console.log("Changed");
-		}
-	}
-	lose = true;
-}
-
-
-
-
-
-
-
-
-
-
