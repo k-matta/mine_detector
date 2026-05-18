@@ -68,7 +68,7 @@ async function setupDiscordSdk() {
 			"applications.commands"
 		],
 	});
-	
+	console.log(code)
 	const response = await fetch("/api/token", {
 		method: "POST",
 		headers: {
@@ -81,7 +81,7 @@ async function setupDiscordSdk() {
 
 	const json = await response.json();
 	// const { access_token } = await response.json();
-
+	console.log(json)
 	const access_token = json.access_token;
 	console.log("Access Token:", access_token);
 	auth = await discordSdk.commands.authenticate({
