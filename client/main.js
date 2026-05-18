@@ -4,11 +4,8 @@ import { DiscordSDK } from "@discord/embedded-app-sdk";
 
 let auth;
 const discordSdk = new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
-console.log(discordSdk)
 setupDiscordSdk().then(() => {
-	console.log("Discord SDK ready.");
-
-	document.body = `<button type="button" id="over-show">Show</button>
+	document.body.innerHTML = `<button type="button" id="over-show">Show</button>
 	<section id="menu">
 		<h1>Welcome to Mine-Detector!</h1>
 		<menu>
@@ -80,13 +77,10 @@ async function setupDiscordSdk() {
 
 	const json = await response.json();
 	// const { access_token } = await response.json();
-	console.log(json)
 	const access_token = json.access_token;
-	console.log("Access Token:", access_token);
 	auth = await discordSdk.commands.authenticate({
 		access_token
 	});
-	console.log(auth);
 	
 	if (auth == null) {
 		throw new Error("Authenticate command failed");
