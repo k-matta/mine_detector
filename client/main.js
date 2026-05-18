@@ -5,6 +5,7 @@ import { DiscordSDK } from "@discord/embedded-app-sdk";
 let auth;
 const discordSdk = new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
 setupDiscordSdk().then(() => {
+	const script = document.body.lastChild;
 	document.body.innerHTML = `<button type="button" id="over-show">Show</button>
 	<section id="menu">
 		<h1>Welcome to Mine-Detector!</h1>
@@ -49,7 +50,7 @@ setupDiscordSdk().then(() => {
 		<p>Seed: <span></span></p>
 		<button type="button" id="return">Return to Menu</button>
 	</section>
-	<script type="module" src="./game.js"></script>`
+	${script}`
 });
 
 async function setupDiscordSdk() {
