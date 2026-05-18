@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 // import cookieParser from "cookie-parser";
 var crypto = await import("node:crypto");
 // import * as gameFuncs from "game.js";
-dotenv.config({ path: "../.env" });
+dotenv.config({ path: "/etc/secrets/.env" });
 
 const app = express();
 const port = process.env.PORT;
