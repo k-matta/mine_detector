@@ -2,6 +2,7 @@
 // import rocketLogo from '/rocket.png'
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 
+let auth;
 const discordSdk = new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
 console.log(discordSdk)
 setupDiscordSdk().then(() => {
