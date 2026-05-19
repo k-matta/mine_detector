@@ -28,6 +28,7 @@ body {
   /* place-items: center; */
   /* min-width: 320px;
   min-height: 100vh; */
+  overflow: scroll;
 }
 
 h1 {
@@ -51,7 +52,6 @@ h1 {
 	aspect-ratio: 1;
 	/* transform: translate(-50%, -50%); */
 	text-align: center;
-	overflow: scroll;
 }
 
 button {
