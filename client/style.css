@@ -35,7 +35,7 @@ h1 {
 	line-height: 1.1;
 }
 #game {
-	display: flex;
+	display: none;
 	padding: 0px;
 	margin: 0px;
 	border: none;
