@@ -80,11 +80,11 @@ class Game {
 		this.setFlagsRemaining(numMines);
 		this.setValidRemaining(this.size*this.size - this.getFlagsRemaining());
 		if (!gameSeed) {
-			// console.log("Generating Seed");
+			console.log("Generating Seed");
 			const curDate = new Date();
 			gameSeed = curDate.getTime();
 		}
-		// console.log(gameSeed);
+		console.log(gameSeed);
 		const rand = mulberry32(gameSeed);
 		this.setSeed(gameSeed);
 		this.board = [];
@@ -93,36 +93,39 @@ class Game {
 			for (let i = 0; i < boardSize; i++) {
 				const row = [];
 				for (let j = 0; j < boardSize; j++) {
-					if (bombs == numMines) break;
 					try {
+						if (bombs == numMines && game.getItem(boardSize-1, boardSize-1)) break;
 						if (this.board[i][j].isMine()) continue;
 					} catch {}
-
-					const square = new GridItem(i, j, Math.floor(rand()*10), true, false);
-					if (square.isMine()) {
-						bombs++;
-						// // console.log("Coords: (" + String(j) + ", " + String(i) + ")");
-						// // console.log(this.board.length, row.length)
-						// // console.log(this.board);
+					if (bombs == numMines) row.push(new GridItem(i, hideOver, 0, true, false));
+					else {
+						const square = new GridItem(i, j, Math.floor(rand()*10), true, false);
+						if (square.isMine()) {
+							bombs++;
+							// console.log("Coords: (" + String(j) + ", " + String(i) + ")");
+							// console.log(this.board.length, row.length)
+							// console.log(this.board);
+						}
+						try {
+							// console.log(this.board[i])
+							this.board[i][j] = square;
+							// console.log('Inserted');
+							// console.log(this.board[i])
+						} catch(e) {
+							// console.log(e);
+							// console.log("Added to row");
+							row.push(square);
+							// console.log(row);
+						}
+						// console.log("Bombs:", bombs, "\nMines:", mines, "\nExit?", bombs == mines);
 					}
-					try {
-						// // console.log(this.board[i])
-						this.board[i][j] = square;
-						// // console.log('Inserted');
-						// // console.log(this.board[i])
-					} catch(e) {
-						// // console.log(e);
-						// // console.log("Added to row");
-						row.push(square);
-						// // console.log(row);
-					}
-					// // console.log("Bombs:", bombs, "\nMines:", mines, "\nExit?", bombs == mines);
 				}
 				if (this.board.length == size) continue;
 				this.board.push(row);
-				// // console.log("Row was pushed");
+				// console.log("Row was pushed");
 			}
 		}
+		console.log(this.board)
 		for (let i = 0; i < boardSize; i++) {
 			for (let j = 0; j < boardSize; j++) {
 				let adjacent = 0;
@@ -142,7 +145,7 @@ class Game {
 					}
 				}
 				this.board[i][j].setValue(adjacent);
-				// // console.log(adjacent);
+				// console.log(adjacent);
 			}
 		}
 	}
@@ -223,10 +226,11 @@ const symbols = ["⬜","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️�
 
 const game = new Game();
 
+let auth;
 let timerId = 0;
 
 function startGame(boardSize, mines, seed=null) {
-	// console.log(boardSize, mines, seed, typeof(seed));
+	console.log(boardSize, mines, seed, typeof(seed));
 	game.setInGame();
 	home.style.display = "none";
 	app.style.display = "block";
@@ -273,7 +277,7 @@ function createInnerBoard(game) {
 	innerBoard.id = "main-board";
 	outerBoard.appendChild(innerBoard)
 	for (let i = 0; i < game.getSize(); i++) {
-		// console.log("running loop")
+		console.log("running loop")
 		const row = document.createElement("div");
 		row.classList.add('row');
 		for (let j = 0; j < game.getSize(); j++) {
@@ -315,11 +319,11 @@ function mulberry32(seed) {
  */
 function generateBoard(size, mines, seed = null) {
 	if (!seed) {
-		// console.log("Generating Seed");
+		console.log("Generating Seed");
 		const curDate = new Date();
 		seed = curDate.getTime();
 	}
-	// console.log(seed);
+	console.log(seed);
 	globalSeed = seed;
 	const rand = mulberry32(seed);
 	const board = [];
@@ -335,40 +339,40 @@ function generateBoard(size, mines, seed = null) {
 				} catch {}
 
 				const square = new GridItem(Math.floor(rand()*10), true, false);
-				// console.log(j, i, bomb, "bomb?", bomb == 9)
+				console.log(j, i, bomb, "bomb?", bomb == 9)
 				if (square.isMine()) {
 					bombs++;
-					// console.log("Coords: (" + String(j) + ", " + String(i) + ")");
-					// console.log(board.length, row.length)
-					// console.log(board);
+					console.log("Coords: (" + String(j) + ", " + String(i) + ")");
+					console.log(board.length, row.length)
+					console.log(board);
 				}
 				try {
-					// console.log(board[i])
+					console.log(board[i])
 					board[i][j] = square;
-					// console.log('Inserted');
-					// console.log(board[i])
+					console.log('Inserted');
+					console.log(board[i])
 				} catch(e) {
-					// console.log(e);
-					// console.log("Added to row");
+					console.log(e);
+					console.log("Added to row");
 					row.push(square);
-					// console.log(row);
+					console.log(row);
 				}
-				// console.log("Bombs:", bombs, "\nMines:", mines, "\nExit?", bombs == mines);
+				console.log("Bombs:", bombs, "\nMines:", mines, "\nExit?", bombs == mines);
 				// boardString += String(bomb) + "\t";
 			}
 			// boardString += "\n";
 			if (board.length == size) continue;
 			board.push(row);
-			// console.log("Row was pushed");
+			console.log("Row was pushed");
 		}
-		// // console.log(boardString);
+		// console.log(boardString);
 		boardString = "";
 	}
 	for (let i = 0; i < size; i++) {
 		for (let j = 0; j < size; j++) {
 			let adjacent = 0;
 			if (board[i][j] == 9) continue;
-			// // console.log(j, i);
+			// console.log(j, i);
 			for (let di = -1; di < 2; di++) {
 				try {
 					for (let dj = -1; dj < 2; dj++) {
@@ -384,22 +388,22 @@ function generateBoard(size, mines, seed = null) {
 				}
 			}
 			board[i][j].setValue(adjacent);
-			// console.log(adjacent);
+			console.log(adjacent);
 		}
 	}
 	return board;
 }
 
 function manageCalls(item) {
-	// console.log("Called.")
-	// console.log(item.getCoords())
+	console.log("Called.")
+	console.log(item.getCoords())
 	const [i, j] = item.getCoords();
 	const source = document.getElementById(`${i}-${j}`);
-	// // console.log("COORDS:", i, j);
-	// // console.log("BOARD:", board, "\nNUMBER:", board[i][j], typeof(board[i][j]));
-	// // console.log(board[i][j] == 9);
+	// console.log("COORDS:", i, j);
+	// console.log("BOARD:", board, "\nNUMBER:", board[i][j], typeof(board[i][j]));
+	// console.log(board[i][j] == 9);
 	if (item.isMine()) {
-		// // console.log("Entered IF");
+		// console.log("Entered IF");
 		source.innerHTML = symbols[9];
 		source.removeEventListener("click", clickGrid);
 		source.removeEventListener("contextmenu", rClickGrid);
@@ -446,7 +450,7 @@ function manageCalls(item) {
 }
 
 function endGame() {
-	// // console.log("Endgame");
+	// console.log("Endgame");
 	const squares = document.getElementsByClassName("covered");
 	let unflagged = 0;
 	for (let i = 0; i < game.getSize(); i++) {
