@@ -34,16 +34,24 @@ h1 {
 	text-align: center;
 	line-height: 1.1;
 }
+#game {
+	display: flex;
+	padding: 0px;
+	margin: 0px;
+	border: none;
+	align-items: center;
+	justify-content: center;
+}
 
 #app {
-	position: fixed;
-	top: 50%;
-	left: 50%;
+	/* top: 50%;
+	left: 50%; */
 	max-width: fit-content;
 	max-height: fit-content;
 	aspect-ratio: 1;
-	transform: translate(-50%, -50%);
+	/* transform: translate(-50%, -50%); */
 	text-align: center;
+	overflow: scroll;
 }
 
 button {
