@@ -7,7 +7,7 @@ try {
 	setupDiscordSdk().then(() => {
 		const script = document.body.lastChild;
 		document.getElementById("title").hidden = true;
-		document.getElementById("game").display = "flex";
+		document.getElementById("game").style.display = "flex";
 	});
 
 	async function setupDiscordSdk() {
