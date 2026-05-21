@@ -15,7 +15,7 @@ import cors from "cors";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 var crypto = await import("node:crypto");
-import "./game.js";
+import { Game, GridItem} from "./game.js";
 dotenv.config({ path: ["../.env", "/etc/secrets/.env"] });
 
 const app = express();
