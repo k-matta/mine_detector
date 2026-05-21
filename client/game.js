@@ -1,4 +1,4 @@
-import { io } from "/socket";
+import { io } from "https://cdn.socket.io/4.8.3/socket.io.esm.min.js";
 
 let codeElement = document.getElementById("code");
 const code = codeElement.innerText;
