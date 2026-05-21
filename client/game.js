@@ -1,3 +1,10 @@
+import { io } from "https://cdn.socket.io/4.8.3/socket.io.esm.min.js";
+
+let codeElement = document.getElementById("code");
+const code = codeElement.innerText;
+document.body.removeChild(codeElement);
+codeElement = null;
+console.log(code);
 class Game {
 	constructor() {
 		this.size = 0;
@@ -7,11 +14,11 @@ class Game {
 		this.flagsRemaining = 0;
 		this.validRemaining = 0;
 	}
-
+	
 	getSize() {
 		return this.size;
 	}
-
+	
 	setSize(size) {
 		this.size = size;
 	}
@@ -196,12 +203,13 @@ class GridItem {
 	clearCover() {
 		this.covered = false;
 	}
-
+	
 	isCovered() {
 		return this.covered;
 	}
 }
 
+const socket = io(import.meta.env.VITE_SERVER_URL);
 const home = document.getElementById("menu");
 const app = document.getElementById("app");
 const buttons = document.getElementsByClassName("game");
@@ -226,7 +234,7 @@ const symbols = ["⬜","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️�
 
 const game = new Game();
 
-let auth;
+let clientId;
 let timerId = 0;
 
 function startGame(boardSize, mines, seed=null) {
@@ -627,3 +635,7 @@ function rClickGrid(event) {
 	}
 	flagIndicator.innerText = game.getFlagsRemaining();
 }
+
+socket.on("connect_error", (err) => {
+	console.log(err);
+});
