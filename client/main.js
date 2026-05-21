@@ -53,7 +53,7 @@ try {
 				<button type="button" id="return">Return to Menu</button>
 			</section>
 		</section>
-		<script src="./game.js" type="module"></script>
+		<script src="/assets/game.js" type="module"></script>
 		<div id="code" hidden>${code}</div>`
 		const script = document.body.lastChild;
 	});
@@ -91,8 +91,8 @@ try {
 		if (auth == null) {
 			throw new Error("Authenticate command failed");
 		}
+		return code;
 	}
-	return code;
 } catch(e) {
 	document.body.innerHTML += "<p style='margin:20px; padding: 10px; background-color: #500; border-radius: 5px; font-size: 0.5em;'>Uh oh! There was an error authenticating this client. Please close and reopen the game to try again.<br>If the problem persists, please contact support.</p>";
 }
