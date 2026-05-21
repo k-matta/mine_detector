@@ -1,4 +1,4 @@
-class Game {
+export class Game {
 	constructor() {
 		this.size = 0;
 		this.board = [];
@@ -143,7 +143,7 @@ class Game {
 	}
 }
 
-class GridItem {
+export class GridItem {
 	constructor(i, j, value, covered, flagged) {
 		this.i = i;
 		this.j = j;
