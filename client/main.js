@@ -91,8 +91,10 @@ try {
 		if (auth == null) {
 			throw new Error("Authenticate command failed");
 		}
+		console.log(code)
 		return code;
 	}
 } catch(e) {
+	console.log(e)
 	document.body.innerHTML += "<p style='margin:20px; padding: 10px; background-color: #500; border-radius: 5px; font-size: 0.5em;'>Uh oh! There was an error authenticating this client. Please close and reopen the game to try again.<br>If the problem persists, please contact support.</p>";
 }
