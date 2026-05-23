@@ -43,8 +43,11 @@ const io = new Server(server, {
 	connectionStateRecovery: {
 		maxDisconnectionDuration: 2 * 60 * 1000 // 2 minutes
 	},
-	path: "/server"
 });
+
+io.path("/server/")
+
+io.serveClient(false);
 
 const games = {};
 
