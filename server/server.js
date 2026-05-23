@@ -8,8 +8,8 @@ import { fileURLToPath } from 'url';
 // import { type } from 'node:os';
 // import { Cache, foodCache } from './classes_and_functions/cache.js';
 // import { validationCheck } from './classes_and_functions/functions.js';
-// import { makeNonceCode, loggedIn, sessionUpdate } from './classes_and_functions/sessions.js';
-// import sessionHandler from './middleware/sessionHandler.js';
+// import { makeNonceCode, loggedIn, sesionUpdate } from './classes_and_functions/sesions.js';
+// import sesionHandler from './middleware/sesionHandler.js';
 // import cookieParser from "cookie-parser";
 import cors from "cors";
 import { createServer } from "node:http";
@@ -39,7 +39,7 @@ app.use((req, res, next) => {
 app.disable("X-powered-by");
 app.use(cors(corsOptions));
 const server = createServer(app);
-const sio = new Server(server, {
+const io = new Server(server, {
 	cors: {
 		origin: process.env.CORS_ALLOW.split(","),
 		methods: ["GET", "POST"]
@@ -49,11 +49,9 @@ const sio = new Server(server, {
 	},
 });
 
-sio.path("/server/")
+io.path("/server/")
 
-sio.serveClient(false);
-
-const io = sio.of(/.+/);
+io.serveClient(false);
 
 const games = {};
 
@@ -121,6 +119,6 @@ server.listen(port, () => {
 	console.log(`Server listening on port ${port}`);
 });
 
-sio.engine.on("connection_error", (err) => {
+io.engine.on("connection_error", (err) => {
 	console.log(err.req, err.code, err.message, err.context);
 });
