@@ -121,6 +121,6 @@ server.listen(port, () => {
 	console.log(`Server listening on port ${port}`);
 });
 
-io.engine.on("connection_error", (err) => {
+sio.engine.on("connection_error", (err) => {
 	console.log(err.req, err.code, err.message, err.context);
 });
