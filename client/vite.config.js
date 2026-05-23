@@ -6,11 +6,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://mine_detector.onrender.com',
+        target: 'https://mine-detector.onrender.com',
         changeOrigin: true,
         secure: true,
         ws: true,
       },
+	  '/socket.io': {
+		target: 'https://1462849859362230362.discordsays.com/server'
+	  }
     },
     hmr: {
       clientPort: 443,
