@@ -210,7 +210,8 @@ class GridItem {
 }
 
 const socket = io(import.meta.env.VITE_SERVER_URL, {
-	auth: code
+	auth: code,
+	path: "/server"
 });
 const home = document.getElementById("menu");
 const app = document.getElementById("app");
