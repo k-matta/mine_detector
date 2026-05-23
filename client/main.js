@@ -53,7 +53,7 @@ try {
 				<button type="button" id="return">Return to Menu</button>
 			</section>
 		</section>
-		<script src="/assets/game.js" type="module"></script>
+		<script src="/assets/game.js" crossorigin type="module"></script>
 		<div id="code" hidden>${code}</div>`
 		const script = document.body.lastChild;
 	});
