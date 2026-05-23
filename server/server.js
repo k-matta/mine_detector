@@ -39,7 +39,7 @@ app.use((req, res, next) => {
 app.disable("X-powered-by");
 app.use(cors(corsOptions));
 const server = createServer(app);
-const io = new Server(server, {
+const sio = new Server(server, {
 	cors: {
 		origin: process.env.CORS_ALLOW.split(","),
 		methods: ["GET", "POST"]
@@ -49,9 +49,11 @@ const io = new Server(server, {
 	},
 });
 
-io.path("/server/")
+sio.path("/server/")
 
-io.serveClient(false);
+sio.serveClient(false);
+
+const io = sio.of('/server');
 
 const games = {};
 
