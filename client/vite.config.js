@@ -26,17 +26,17 @@ export default defineConfig({
 		},
 		output: {
 			assetFileNames: (assetInfo) => {
-				console.log(assetInfo)
+				// console.log(assetInfo)
 				// const names = assetInfo.names.split("/");
 				// return `assets/${names[names.length-1]}`;
 				return 'assets/[name].[ext]'
 			},
 			entryFileNames: (fileInfo) => {
-				console.log(fileInfo);
+				// console.log(fileInfo);
 				return "assets/[name].js"
 			},
 			chunkFileNames: (fileInfo) => {
-				console.log(fileInfo);
+				// console.log(fileInfo);
 				return "assets/[name].js"
 			}
 		}
