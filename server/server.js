@@ -33,7 +33,7 @@ app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ extended: true }));
 app.use((req, res, next) => {
-	console.log(req.originalUrl);
+	console.log(req.url);
 	next();
 });
 app.disable("X-powered-by");
@@ -59,10 +59,10 @@ const games = {};
 io.on('connection', (socket) => {
 	console.log("New connection: " , socket.handshake.auth);
 	socket.join(socket.handshake.auth);
+	// games[socket.handshake.auth] = new Game();
 });
 
 io.on("generate", (gameData) => {
-	const id = 1;
 	try {
 		const {boardSize, mines, seed} = gameData;
 	} catch(e) {
