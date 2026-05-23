@@ -53,7 +53,7 @@ sio.path("/server/")
 
 sio.serveClient(false);
 
-const io = sio.of('/server');
+const io = sio.of(/.+/);
 
 const games = {};
 
