@@ -49,7 +49,7 @@ const io = new Server(server, {
 	},
 });
 
-// io.path("/server/")
+io.path("/socket/")
 
 io.serveClient(false);
 
