@@ -4,7 +4,7 @@ let codeElement = document.getElementById("code");
 const code = codeElement.innerText;
 document.body.removeChild(codeElement);
 codeElement = null;
-console.log(code);
+console.log("CODE:", code);
 class Game {
 	constructor() {
 		this.size = 0;
@@ -209,7 +209,9 @@ class GridItem {
 	}
 }
 
-const socket = io(import.meta.env.VITE_SERVER_URL);
+const socket = io(import.meta.env.VITE_SERVER_URL, {
+	auth: code
+});
 const home = document.getElementById("menu");
 const app = document.getElementById("app");
 const buttons = document.getElementsByClassName("game");

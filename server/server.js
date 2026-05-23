@@ -49,7 +49,7 @@ const games = {};
 
 // Setup:
 io.on('connection', (socket) => {
-	console.log("New connection: " , socket.id);
+	console.log("New connection: " , socket.handshake.auth);
 	socket.join(socket.handshake.auth);
 });
 
