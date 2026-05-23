@@ -26,18 +26,6 @@ const corsOptions = {
 	origin: '*',
 	optionsSuccessStatus: 200
 };
-app.set('images', path.join(__dirname, "/public/images"));
-app.set('views', path.join(__dirname, "/views"));
-app.set('view engine', 'pug');
-app.use(express.static("public"));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json({ extended: true }));
-app.use((req, res, next) => {
-	console.log(req.originalUrl);
-	next();
-});
-app.disable("X-powered-by");
-app.use(cors(corsOptions));
 const server = createServer(app);
 const sio = new Server(server, {
 	cors: {
@@ -88,6 +76,18 @@ io.on("generate", (gameData) => {
 	callback({id, size: games[id].getSize(), flags: games[id].getFlagsRemaining(), board});
 });
 
+app.set('images', path.join(__dirname, "/public/images"));
+app.set('views', path.join(__dirname, "/views"));
+app.set('view engine', 'pug');
+app.use(express.static("public"));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ extended: true }));
+app.use((req, res, next) => {
+	console.log(req.originalUrl);
+	next();
+});
+app.disable("X-powered-by");
+app.use(cors(corsOptions));
 io.on("click", (data) => {
 
 })
