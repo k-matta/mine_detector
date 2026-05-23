@@ -1,4 +1,4 @@
-import { io } from "/socket";
+import { io } from "https://1462849859362230362.discordsays.com/socket";
 
 let codeElement = document.getElementById("code");
 const code = codeElement.innerText;
