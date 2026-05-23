@@ -36,7 +36,7 @@ app.use(express.json({ extended: true }));
 // 	console.log(req.url);
 // 	next();
 // });
-app.disable("X-powered-by");
+app.disable("x-powered-by");
 app.use(cors(corsOptions));
 const server = createServer(app);
 const io = new Server(server, {
@@ -47,9 +47,8 @@ const io = new Server(server, {
 	connectionStateRecovery: {
 		maxDisconnectionDuration: 2 * 60 * 1000 // 2 minutes
 	},
+	path: "/socket/"
 });
-
-io.path("/socket/")
 
 io.serveClient(false);
 
