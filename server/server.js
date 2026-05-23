@@ -32,10 +32,10 @@ app.set('view engine', 'pug');
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ extended: true }));
-app.use((req, res, next) => {
-	console.log(req.url);
-	next();
-});
+// app.use((req, res, next) => {
+// 	console.log(req.url);
+// 	next();
+// });
 app.disable("X-powered-by");
 app.use(cors(corsOptions));
 const server = createServer(app);
