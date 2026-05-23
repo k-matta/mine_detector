@@ -234,29 +234,32 @@ const symbols = ["⬜","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️�
 
 const game = new Game();
 
-let clientId;
 let timerId = 0;
 
-function startGame(boardSize, mines, seed=null) {
+async function startGame(boardSize, mines, seed=null) {
 	console.log(boardSize, mines, seed, typeof(seed));
-	game.setInGame();
+	const res = await socket.emitWithAck("generate", {boardSize, mines, seed});
+	if (res.error) {
+		parameterError()
+	}
 	home.style.display = "none";
 	app.style.display = "block";
-	game.generateGameBoard(boardSize, mines, seed);
-	flagIndicator.innerText = game.getFlagsRemaining();
-	createInnerBoard(game);
-	const style = window.getComputedStyle(document.getElementById("board-container"));
+	createInnerBoard(res.size, res.board);
+	flagIndicator.innerText = res.flags;
 
+	// Force board styles for pausing
+	const style = window.getComputedStyle(document.getElementById("board-container"));
+	// Width
 	const wap = parseFloat(style.width);
 	const paddingLeft = parseFloat(style.paddingLeft);
 	const paddingRight = parseFloat(style.paddingRight);
 	const width = wap - paddingLeft - paddingRight;
-	
+	// Height
 	const hap = parseFloat(style.height);
 	const paddingTop = parseFloat(style.paddingTop);
 	const paddingBottom = parseFloat(style.paddingBottom);
 	const height = hap - paddingTop - paddingBottom;
-
+	//Force Styles
 	document.getElementById("board-container").style.width = String(width) + "px";
 	document.getElementById("board-container").style.height = String(height) + "px";
 
@@ -274,7 +277,7 @@ function startGame(boardSize, mines, seed=null) {
 	}, 1000);
 }
 
-function createInnerBoard(game) {
+function createInnerBoard(size, board) {
 	let outerBoard = document.getElementById("board-container");
 	if (!outerBoard) {
 		outerBoard = document.createElement("section");
@@ -284,23 +287,18 @@ function createInnerBoard(game) {
 	const innerBoard = document.createElement("div");
 	innerBoard.id = "main-board";
 	outerBoard.appendChild(innerBoard)
-	for (let i = 0; i < game.getSize(); i++) {
+	for (let i = 0; i < size; i++) {
 		console.log("running loop")
 		const row = document.createElement("div");
 		row.classList.add('row');
-		for (let j = 0; j < game.getSize(); j++) {
+		for (let j = 0; j < size; j++) {
 			const gridItem = document.createElement("div");
 			gridItem.classList.add("grid");
-			if (game.getItem(i, j).isFlagged()) {
-				gridItem.innerHTML = symbols[10];
-				gridItem.addEventListener('click', clickGrid);
-				gridItem.addEventListener('contextmenu', rClickGrid);
-			} else if (game.getItem(i, j).isCovered()) {
-				gridItem.innerHTML = symbols[11];
+			if (board[i][j] == 10 || board[i][j] == 11) {
 				gridItem.addEventListener('click', clickGrid);
 				gridItem.addEventListener('contextmenu', rClickGrid);
 			} else {
-				gridItem.innerHTML = symbols[game.getItem(i, j).getValue()];
+				gridItem.innerHTML = symbols[board[i][j]];
 			}
 			gridItem.id = `${i}-${j}`;
 			row.appendChild(gridItem);
@@ -509,8 +507,8 @@ function gameOver() {
 	clearInterval(timerId);
 }
 
-standard.addEventListener("click", () => {
-	startGame(20, 50);
+standard.addEventListener("click", async () => {
+	await startGame(20, 50);
 });
 
 custom.addEventListener("click", () => {
@@ -542,7 +540,7 @@ showOver.addEventListener("click", () => {
 	showOver.style.display = "none";
 });
 
-customStart.addEventListener("click", (event) => {
+customStart.addEventListener("click", async (event) => {
 	event.preventDefault();
 	const sizeVal = Number(size.value);
 	const minesVal = Number(mines.value);
@@ -551,7 +549,7 @@ customStart.addEventListener("click", (event) => {
 		if (isNaN(document.getElementById("seed").value)) {
 			alert("Seed must be a number.");
 		} else {
-			startGame(sizeVal, minesVal, Number(document.getElementById("seed").value));
+			await startGame(sizeVal, minesVal, Number(document.getElementById("seed").value));
 			size.value = 20;
 			sizeDisplay.innerText = 20;
 			mines.value = 50;
@@ -560,7 +558,7 @@ customStart.addEventListener("click", (event) => {
 			customForm.style.display = "none";
 		}
 	} else {
-		startGame(sizeVal, minesVal);
+		await startGame(sizeVal, minesVal);
 		size.value = 20;
 		sizeDisplay.innerText = 20;
 		mines.value = 50;

@@ -50,7 +50,7 @@ const games = {};
 // Setup:
 io.on('connection', (socket) => {
 	console.log("New connection: " , socket.id);
-	io.emit("room", socket.id);
+	socket.join(socket.handshake.auth);
 });
 
 io.on("generate", (gameData) => {
