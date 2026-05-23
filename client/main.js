@@ -93,6 +93,7 @@ try {
 		<div id="code" hidden>${code}</div>`
 		const script = document.createElement("script");
 		script.src = "/assets/game.js";
+		script.type = "module";
 		document.body.appendChild(script);
 	});
 } catch(e) {
