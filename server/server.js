@@ -71,8 +71,9 @@ io.on('connection', (socket) => {
 		}
 		if (typeof(boardSize) != "number" || typeof(mines) != "number" || (typeof(seed) != "number" && seed)) callback({error: "Invalid parameters"});
 		try {
-			games[id] = new Game();
-			games[id].generateGameBoard(boardSize, mines, seed);
+			games[`${id}`] = new Game();
+			games[`${id}`].generateGameBoard(boardSize, mines, seed);
+			console.log(games[`${id}`].board);
 		} catch(err) {
 			callback({error: "Invalid parameters"});
 		}
@@ -84,6 +85,7 @@ io.on('connection', (socket) => {
 			}
 			board.push(row);
 		}
+		console.log(board);
 		callback({id, size: games[id].getSize(), flags: games[id].getFlagsRemaining(), board});
 	});
 });
