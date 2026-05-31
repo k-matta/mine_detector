@@ -127,3 +127,8 @@ server.listen(port, () => {
 io.engine.on("connection_error", (err) => {
 	console.log(`Socket conntection error:\nERROR: ${err}\nERROR NAME: ${err.name}\nERROR MESSAGE: ${err.message}\nERROR CAUSE: ${err.cause}`);
 });
+
+socket.onAnyOutgoing((eventName, ...args) => {
+	if (typeof args == "object") console.log(eventName, args);
+	else console.log(eventName, JSON.stringify(args));
+});

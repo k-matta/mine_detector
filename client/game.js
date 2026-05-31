@@ -242,8 +242,9 @@ let timerId = 0;
 async function startGame(boardSize, mines, seed="") {
 	console.log(boardSize, mines, seed, typeof(seed));
 	const res = await socket.emitWithAck("generate", {boardSize, mines, seed});
+	console.log(res);
 	if (res.error) {
-		parameterError()
+		parameterError();
 	}
 	console.log("Response:", res);
 	home.style.display = "none";
