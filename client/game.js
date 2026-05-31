@@ -267,10 +267,10 @@ async function startGame(boardSize, mines, seed="") {
 	//Force Styles
 	document.getElementById("board-container").style.width = String(width) + "px";
 	document.getElementById("board-container").style.height = String(height) + "px";
-	app.style.width = String(width) + "px";
-	app.style.height = String(height) + "px";
-	gameDisplay.style.width = String(width) + "px";
-	gameDisplay.style.height = String(height) + "px";
+	const throwaway = app.offsetWidth;
+	console.log(throwaway)
+	const throwaway2 = gameDisplay.offsetWidth;
+	console.log(throwaway2)
 
 	time.innerText = "0:00";
 	timerId = setInterval(() => {
