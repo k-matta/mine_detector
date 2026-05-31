@@ -58,12 +58,15 @@ const games = {};
 io.on('connection', (socket) => {
 	console.log("New connection: " , socket.handshake.auth);
 	socket.join(socket.handshake.auth);
+	console.log("Socket joined ", auth);
 	// games[socket.handshake.auth] = new Game();
 });
 
 io.on("generate", (gameData) => {
+	console.log(gameData);
+	let boardSize, mines, seed;
 	try {
-		const {boardSize, mines, seed} = gameData;
+		({boardSize, mines, seed} = gameData);
 	} catch(e) {
 		callback({error: "Invalid parameters"});
 	}
