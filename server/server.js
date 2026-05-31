@@ -60,33 +60,33 @@ io.on('connection', (socket) => {
 	// socket.join(socket.handshake.auth.userId);
 	// console.log("Socket joined ", socket.handshake.auth.userId);
 	// games[socket.handshake.auth] = new Game();
+	socket.on("generate", (gameData) => {
+		console.log(gameData);
+		let boardSize, mines, seed;
+		try {
+			({boardSize, mines, seed} = gameData);
+		} catch(e) {
+			callback({error: "Invalid parameters"});
+		}
+		if (typeof(boardSize) != "number" || typeof(mines) != "number" || (typeof(seed) != "number" && seed)) callback({error: "Invalid parameters"});
+		try {
+			games[id] = new Game();
+			games[id].generateGameBoard(boardSize, mines, seed);
+		} catch(err) {
+			callback({error: "Invalid parameters"});
+		}
+		const board = [];
+		for (let i = 0; i < boardSize; i++) {
+			const row = [];
+			for (let j = 0; j < boardSize; j++) {
+				row.push(11);
+			}
+			board.push(row);
+		}
+		callback({id, size: games[id].getSize(), flags: games[id].getFlagsRemaining(), board});
+	});
 });
 
-io.on("generate", (gameData) => {
-	console.log(gameData);
-	let boardSize, mines, seed;
-	try {
-		({boardSize, mines, seed} = gameData);
-	} catch(e) {
-		callback({error: "Invalid parameters"});
-	}
-	if (typeof(boardSize) != "number" || typeof(mines) != "number" || (typeof(seed) != "number" && seed)) callback({error: "Invalid parameters"});
-	try {
-		games[id] = new Game();
-		games[id].generateGameBoard(boardSize, mines, seed);
-	} catch(err) {
-		callback({error: "Invalid parameters"});
-	}
-	const board = [];
-	for (let i = 0; i < boardSize; i++) {
-		const row = [];
-		for (let j = 0; j < boardSize; j++) {
-			row.push(11);
-		}
-		board.push(row);
-	}
-	callback({id, size: games[id].getSize(), flags: games[id].getFlagsRemaining(), board});
-});
 
 io.on("click", (data) => {
 
