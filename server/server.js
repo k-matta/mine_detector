@@ -57,8 +57,8 @@ const games = {};
 // Setup:
 io.on('connection', (socket) => {
 	console.log("New connection: " , socket.handshake.auth.userId);
-	socket.join(socket.handshake.auth.userId);
-	console.log("Socket joined ", socket.handshake.auth.userId);
+	// socket.join(socket.handshake.auth.userId);
+	// console.log("Socket joined ", socket.handshake.auth.userId);
 	// games[socket.handshake.auth] = new Game();
 });
 
