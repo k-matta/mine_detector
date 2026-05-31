@@ -512,7 +512,7 @@ function gameOver() {
 }
 
 standard.addEventListener("click", async () => {
-	await startGame(20, 50, null);
+	await startGame(20, 50);
 });
 
 custom.addEventListener("click", () => {
