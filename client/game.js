@@ -302,9 +302,8 @@ function createInnerBoard(size, board) {
 			if (board[i][j] == 10 || board[i][j] == 11) {
 				gridItem.addEventListener('click', clickGrid);
 				gridItem.addEventListener('contextmenu', rClickGrid);
-			} else {
-				gridItem.innerHTML = symbols[board[i][j]];
 			}
+			gridItem.innerHTML = symbols[board[i][j]];
 			gridItem.id = `${i}-${j}`;
 			row.appendChild(gridItem);
 		}
