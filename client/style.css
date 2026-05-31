@@ -35,13 +35,16 @@ h1 {
 	text-align: center;
 	line-height: 1.1;
 }
+
 #game {
 	display: flex;
 	padding: 0px;
-	margin: 0px;
+	margin: 0px auto;
 	border: none;
+	width: fit-content;
+	height: fit-content;
 	align-items: center;
-	justify-content: center;
+	/* justify-content: center; */
 }
 
 #app {
