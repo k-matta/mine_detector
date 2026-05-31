@@ -638,5 +638,5 @@ function rClickGrid(event) {
 }
 
 socket.on("connect_error", (err) => {
-	console.log(err);
+	console.log(`Socket conntection error:\nERROR: ${err}\nERROR NAME: ${err.name}\nERROR MESSAGE: ${err.message}\nERROR CAUSE: ${err.cause}`);
 });

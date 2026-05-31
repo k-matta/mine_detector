@@ -58,7 +58,7 @@ const games = {};
 io.on('connection', (socket) => {
 	console.log("New connection: " , socket.handshake.auth);
 	socket.join(socket.handshake.auth);
-	console.log("Socket joined ", auth);
+	console.log("Socket joined ", socket.handshake.auth);
 	// games[socket.handshake.auth] = new Game();
 });
 
@@ -122,5 +122,5 @@ server.listen(port, () => {
 });
 
 io.engine.on("connection_error", (err) => {
-	console.log(err.req, err.code, err.message, err.context);
+	console.log(`Socket conntection error:\nERROR: ${err}\nERROR NAME: ${err.name}\nERROR MESSAGE: ${err.message}\nERROR CAUSE: ${err.cause}`);
 });
