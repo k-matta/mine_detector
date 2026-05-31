@@ -245,6 +245,7 @@ async function startGame(boardSize, mines, seed=null) {
 	if (res.error) {
 		parameterError()
 	}
+	console.log("Response:", res);
 	home.style.display = "none";
 	app.style.display = "block";
 	createInnerBoard(res.size, res.board);
@@ -511,7 +512,7 @@ function gameOver() {
 }
 
 standard.addEventListener("click", async () => {
-	await startGame(20, 50);
+	await startGame(20, 50, null);
 });
 
 custom.addEventListener("click", () => {
