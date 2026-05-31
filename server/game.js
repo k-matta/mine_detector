@@ -114,7 +114,7 @@ export class Game {
 						}
 					}
 				}
-				if (this.board.length == size) continue;
+				if (this.board.length == boardSize) continue;
 				this.board.push(row);
 			}
 		}
