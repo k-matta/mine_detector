@@ -97,10 +97,10 @@ export class Game {
 				const row = [];
 				for (let j = 0; j < boardSize; j++) {
 					try {
-						if (bombs == numMines && game.getItem(boardSize-1, boardSize-1)) break;
+						if (bombs == numMines && this.getItem(boardSize-1, boardSize-1)) break;
 						if (this.board[i][j].isMine()) continue;
 					} catch {}
-					if (bombs == numMines) row.push(new GridItem(i, hideOver, 0, true, false));
+					if (bombs == numMines) row.push(new GridItem(i, j, 0, true, false));
 					else {
 						const square = new GridItem(i, j, Math.floor(rand()*10), true, false);
 						if (square.isMine()) {
