@@ -215,7 +215,7 @@ const socket = io(import.meta.env.VITE_SERVER_URL, {
 });
 const home = document.getElementById("menu");
 const app = document.getElementById("app");
-const buttons = document.getElementsByClassName("game");
+const gameDisplay = document.getElementById("game");
 const customForm = document.getElementById("c-form");
 const customStart = document.getElementById("start-custom");
 const overScreen = document.getElementById("over");
@@ -267,6 +267,10 @@ async function startGame(boardSize, mines, seed="") {
 	//Force Styles
 	document.getElementById("board-container").style.width = String(width) + "px";
 	document.getElementById("board-container").style.height = String(height) + "px";
+	app.style.width = String(width) + "px";
+	app.style.height = String(height) + "px";
+	gameDisplay.style.width = String(width) + "px";
+	gameDisplay.style.height = String(height) + "px";
 
 	time.innerText = "0:00";
 	timerId = setInterval(() => {
