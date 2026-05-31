@@ -38,13 +38,12 @@ h1 {
 
 #game {
 	display: flex;
-	padding: 0px;
-	margin: 0px auto;
+	padding: 20px;
+	margin: auto;
 	border: none;
 	width: fit-content;
 	height: fit-content;
 	align-items: center;
-	/* justify-content: center; */
 }
 
 #app {
