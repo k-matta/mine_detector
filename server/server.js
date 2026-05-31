@@ -73,9 +73,11 @@ io.on('connection', (socket) => {
 		try {
 			games[`${id}`] = new Game();
 			games[`${id}`].generateGameBoard(boardSize, mines, seed);
-			console.log(games[`${id}`].board);
+			console.log("Generated board:",games[`${id}`].board);
 		} catch(err) {
+			console.log(err);
 			callback({error: "Invalid parameters"});
+			return;
 		}
 		const board = [];
 		for (let i = 0; i < boardSize; i++) {
