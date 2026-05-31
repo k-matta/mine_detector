@@ -61,11 +61,11 @@ io.on('connection', (socket) => {
 	// console.log("Socket joined ", socket.handshake.auth.userId);
 	// games[socket.handshake.auth] = new Game();
 	socket.on("generate", (gameData, callback) => {
+		const id = socket.handshake.auth.userId;
 		console.log(gameData);
 		let boardSize, mines, seed;
 		try {
 			({boardSize, mines, seed} = gameData);
-			console.log(boardSize, typeof boardSize, mines, typeof mines, seed, !!seed, typeof seed);
 		} catch(e) {
 			callback({error: "Invalid parameters"});
 		}
