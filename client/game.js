@@ -242,11 +242,11 @@ let timerId = 0;
 async function startGame(boardSize, mines, seed="") {
 	console.log(boardSize, mines, seed, typeof(seed));
 	const res = await socket.emitWithAck("generate", {boardSize, mines, seed});
-	console.log(res);
+	console.log(JSON.stringify(res));
 	if (res.error) {
 		parameterError();
 	}
-	console.log("Response:", res);
+	console.log("Response:", JSON.stringify(res));
 	home.style.display = "none";
 	app.style.display = "block";
 	createInnerBoard(res.size, res.board);
