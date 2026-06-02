@@ -76,7 +76,7 @@ export class Game {
 	/**
 	 * Decrease the number of flags left to use (i.e., a flag was added to the board).
 	 */
-	removeflag() {
+	removeFlag() {
 		this.flagsRemaining--;
 	}
 

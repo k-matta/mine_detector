@@ -667,22 +667,26 @@ async function clickGrid() {
 	}
 }
 
-function rClickGrid(event) {
+async function rClickGrid(event) {
 	event.preventDefault()
 	const item = game.getItem(Number(this.id.split("-")[0]), Number(this.id.split("-")[1]));
 	if (game.getFlagsRemaining() && item.isCovered() && !item.isFlagged()) {
+		const res = await socket.emitWithAck("flag", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
+		if (res.error) return;
 		this.classList.add("flagged");
 		item.setFlag();
 		this.innerHTML = symbols[10];
-		game.removeflag();
+		game.setFlagsRemaining(res.flags);
 		if (!game.getFlagsRemaining()) {
 			flagIndicator.style.backgroundColor = "#AA0000";
 		}
 	} else if (item.isFlagged()) {
+		const res = await socket.emitWithAck("unflag", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
+		if (res.error) return;
 		this.classList.remove("flagged");
 		item.clearFlag();
 		this.innerHTML = symbols[11];
-		game.addFlag();
+		game.setFlagsRemaining(res.flags);
 		flagIndicator.style.backgroundColor = "#4a4a4a";
 	}
 	flagIndicator.innerText = game.getFlagsRemaining();

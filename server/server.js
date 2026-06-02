@@ -92,6 +92,10 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on("uncover", (coords, callback) => {
+		if (games[id].isPaused()) {
+			callback({error: "No actions allowed while game is paused."});
+			return;
+		}
 		const square = games[id].getItem(...coords);
 		if (!square) {
 			callback({error: "Invalid coordinates"});
@@ -99,13 +103,49 @@ io.on('connection', (socket) => {
 		} if (square.isFlagged() || !square.isCovered()) {
 			callback({error: "Square connot be uncovered"});
 			return;
-		} if (games[id].isPaused()) {
-			callback({error: "No actions allowed while game is paused."});
-			return;
 		}
 		const lost = games[id].clickGridItem(square);
 		console.log(games[id].changes);
 		callback({changes: games[id].changes, seed: lost ? games[id].getSeed() : null});
+		games[id].changes = [];
+	});
+
+	socket.on("flag", (coords, callback) => {
+		if (games[id].isPaused()) {
+			callback({error: "No actions allowed while game is paused."});
+			return;
+		} if (!games[id].getFlagsRemaining()) {
+			callback({error: "No flags left to use"})
+		}
+		const square = games[id].getItem(...coords);
+		if (!square) {
+			callback({error: "Invalid coordinates"});
+			return;
+		} if (square.isFlagged() || !square.isCovered()) {
+			callback({error: "Square connot be flagged"});
+			return;
+		}
+		games[id].removeFlag();
+		square.setFlag();
+		callback({flags: games[id].getFlagsRemaining()});
+	});
+
+	socket.on("unflag", (coords, callback) => {
+		if (games[id].isPaused()) {
+			callback({error: "No actions allowed while game is paused."});
+			return;
+		}
+		const square = games[id].getItem(...coords);
+		if (!square) {
+			callback({error: "Invalid coordinates"});
+			return;
+		} if (!square.isFlagged()) {
+			callback({error: "Square connot be unflagged"});
+			return;
+		}
+		games[id].addFlag();
+		square.clearFlag();
+		callback({flags: games[id].getFlagsRemaining()});
 	});
 });
 
