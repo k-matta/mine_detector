@@ -211,7 +211,9 @@ export class Game {
 	 * @param {GridItem} item The grid item that was clicked.
 	 */
 	clickGridItem(item) {
+		console.log("Uncovering:", item.getCoords());
 		if (!item) return;
+		console.log(item.isMine());
 		if (item.isMine()) {
 			endGame();
 			return;
@@ -221,8 +223,10 @@ export class Game {
 		while (elements.length) {
 			const currentItem = elements[0];
 			const [i, j] = currentItem.getCoords();
+			console.log(i, j);
 			currentItem.clearCover();
 			this.changes.push({val: currentItem.getValue(), i: currentItem.getCoords[0], j: currentItem.getCoords()[1]});
+			console.log(changes);
 			if (!currentItem.getValue()) {
 				for (let di = -1; di < 2; di++) {
 					for (let dj = -1; dj < 2; dj++) {
@@ -231,19 +235,21 @@ export class Game {
 						const next = this.getItem(i+di, j+dj);
 						if (!next) continue;
 						if ((next.isCovered()) &&
-							!next.isFlagged() &&
-							(!elements.find((item) => {
-								const [nextI, nextJ] = next.getCoords();
-								const [compI, compJ] = item.getCoords();
-								return nextI == compI && nextJ == compJ
-							}))) {
-								elements.push(next);
+						!next.isFlagged() &&
+						(!elements.find((item) => {
+							const [nextI, nextJ] = next.getCoords();
+							const [compI, compJ] = item.getCoords();
+							return nextI == compI && nextJ == compJ
+						}))) {
+							elements.push(next);
+							console.log(next.getCoords());
 						}
 					}
 				}
 			}
 			elements.splice(0, 1);
 			this.removeValid();
+			console.log(this.getValidRemaining());
 			if (!this.getValidRemaining() && !this.getFlagsRemaining()) {
 				win = true;
 				break;

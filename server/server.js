@@ -74,7 +74,6 @@ io.on('connection', (socket) => {
 		try {
 			games[`${id}`] = new Game();
 			games[`${id}`].generateGameBoard(boardSize, mines, seed);
-			console.log("Generated board:",games[`${id}`].board);
 		} catch(err) {
 			console.log(err);
 			callback({error: "Invalid parameters"});
@@ -88,8 +87,8 @@ io.on('connection', (socket) => {
 			}
 			board.push(row);
 		}
-		console.log(board);
 		callback({id, size: games[id].getSize(), flags: games[id].getFlagsRemaining(), board});
+		console.log("Board created");
 	});
 
 	socket.on("uncover", (coords, callback) => {
@@ -105,6 +104,7 @@ io.on('connection', (socket) => {
 			return;
 		}
 		games[id].clickGridItem(square);
+		console.log(games[id].changes);
 		callback(games[id].changes);
 	});
 });
