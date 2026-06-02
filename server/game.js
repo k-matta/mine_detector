@@ -267,6 +267,7 @@ export class Game {
 				// if (item.isMine() && !item.isFlagged()) unflagged++;
 			}
 		}
+		return true;
 	}
 }
 

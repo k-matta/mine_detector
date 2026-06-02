@@ -112,7 +112,8 @@ class Game {
 	 */
 	setItem(item, i = null, j = null) {
 		if (!i || !j) {
-			this.board[item.getCoords[0]][item.getCoords[1]] = item;
+			this.board[item.getCoords()[0]][item.getCoords()[1]] = item;
+			return;
 		} else if (typeof(i) != "number" || typeof(j) != "number") return;
 		if (0 <= i && i < this.size && 0 <= j && j < this.size) {
 			this.board[i][j] = item;
@@ -172,8 +173,8 @@ class Game {
 			this.addChange(newItem);
 			const oldItem = this.getItem(square.i, square.j)
 			oldItem.isFlagged() && !newItem.isFlagged() ? flagChange++ : !this.getItem(square.i, square.j).isFlagged() && newItem.isFlagged() ? flagChange-- : flagChange = flagChange;
-			if (newItem.isMine() && !oldItem.isFlagged) badFlags.push(newItem.getCoords());
-			if (!newItem.isMine() && oldItem.isFlagged) badFlags.push(newItem.getCoords());
+			if (newItem.isMine() && !oldItem.isFlagged()) badFlags.push(newItem.getCoords());
+			if (!newItem.isMine() && oldItem.isFlagged()) badFlags.push(newItem.getCoords());
 			this.setItem(newItem);
 		}
 		this.setFlagsRemaining(this.getFlagsRemaining() + flagChange);
@@ -382,6 +383,7 @@ function createInnerBoard(game) {
 			if (game.getItem(i, j).isFlagged() || game.getItem(i, j).isCovered()) {
 				gridItem.addEventListener('click', clickGrid);
 				gridItem.addEventListener('contextmenu', rClickGrid);
+				gridItem.classList.add('covered');
 			}
 			gridItem.innerHTML = symbols[game.getItem(i, j).getValue()];
 			gridItem.id = `${i}-${j}`;
@@ -406,6 +408,7 @@ function updateInnerBoard(game) {
 		if (!change.isCovered()) {
 			gridItem.removeEventListener('click', clickGrid);
 			gridItem.removeEventListener('contextmenu', rClickGrid);
+			gridItem.classList.remove('covered');
 		}
 		gridItem.innerHTML = symbols[change.getValue()];
 	}
@@ -496,7 +499,7 @@ function generateBoard(size, mines, seed = null) {
 	return board;
 }
 
-function endGame(badFlags) {
+function endGame(badFlags, seed) {
 	let unflagged = 0;
 	for (let i = 0; i < game.getSize(); i++) {
 		for (let j = 0; j < game.getSize(); j++) {
@@ -505,7 +508,8 @@ function endGame(badFlags) {
 			if ((itemHTML.innerText == symbols[10] || itemHTML.innerText == symbols[11])) {
 				itemHTML.removeEventListener("click", clickGrid);
 				itemHTML.removeEventListener("contextmenu", rClickGrid);
-				item.clearCover();
+				itemHTML.classList.remove("covered");
+				console.log(item.getValue());
 				itemHTML.innerHTML = symbols[item.getValue()];
 				if (badFlags.find((square) => square[0] == i && square[1] == j)) {
 					itemHTML.style.backgroundColor = "red";
@@ -518,7 +522,7 @@ function endGame(badFlags) {
 	}
 	overScreen.children[1].innerHTML = "Game Over!"
 	overScreen.children[2].innerHTML = `You had ${unflagged} ${unflagged == 1 ? "mine" : "mines"} remaining!<br>${overScreen.children[2].innerHTML}`;
-	gameOver();
+	gameOver(seed);
 }
 
 function winGame() {
@@ -537,8 +541,8 @@ function winGame() {
 	gameOver();
 }
 
-function gameOver() {
-	overScreen.children[2].children[1].innerText = game.getSeed();
+function gameOver(seed) {
+	overScreen.children[2].children[1].innerText = seed;
 	overScreen.style.display = "block";
 	game.setFlagsRemaining(0);
 	game.clearInGame();
@@ -650,10 +654,14 @@ async function clickGrid() {
 		const res = await socket.emitWithAck("uncover", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
 		console.log(JSON.stringify(res));
 		if (!res.error) {
-			const badFlags = game.updateGame(res);
-			console.log(badFlags);
-			if (badFlags) endGame(badFlags);
-			else updateInnerBoard(game);
+			const badFlags = game.updateGame(res.changes);
+			if (!res.seed) {
+				updateInnerBoard(game);
+			} else {
+				console.log(badFlags);
+				endGame(badFlags, res.seed);
+				
+			}
 		}
 		// manageCalls(item);
 	}

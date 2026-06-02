@@ -103,9 +103,9 @@ io.on('connection', (socket) => {
 			callback({error: "No actions allowed while game is paused."});
 			return;
 		}
-		games[id].clickGridItem(square);
+		const lost = games[id].clickGridItem(square);
 		console.log(games[id].changes);
-		callback(games[id].changes);
+		callback({changes: games[id].changes, seed: lost ? games[id].getSeed() : null});
 	});
 });
 
