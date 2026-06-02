@@ -224,7 +224,7 @@ export class Game {
 			const [i, j] = currentItem.getCoords();
 			console.log(i, j);
 			currentItem.clearCover();
-			this.changes.push({val: currentItem.getValue(), i: currentItem.getCoords[0], j: currentItem.getCoords()[1]});
+			this.changes.push({val: currentItem.getValue(), i: currentItem.getCoords()[0], j: currentItem.getCoords()[1]});
 			console.log(this.changes);
 			if (!currentItem.getValue()) {
 				for (let di = -1; di < 2; di++) {
@@ -263,7 +263,7 @@ export class Game {
 				const item = this.getItem(i, j);
 				if (!item.isCovered()) continue;
 				item.clearCover();
-				this.changes.push({val: item.getValue(), i: item.getCoords[0], j: item.getCoords()[1]})
+				this.changes.push({val: item.getValue(), i: item.getCoords()[0], j: item.getCoords()[1]})
 				// if (item.isMine() && !item.isFlagged()) unflagged++;
 			}
 		}
