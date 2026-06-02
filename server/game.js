@@ -22,6 +22,8 @@ export class Game {
 		this.timeEvents = [];
 		/** @type {Number} The amount of time spent playing the current game */
 		this.time = 0;
+		/** @type {Array} An array of changes to sync with the client */
+		this.changes = [];
 	}
 
 	/**
@@ -212,6 +214,7 @@ export class Game {
 			const currentItem = elements[0];
 			const [i, j] = currentItem.getCoords();
 			currentItem.clearCover();
+			this.changes.push({val: currentItem.getValue(), i: currentItem.getCoords[0], j: currentItem.getCoords()[1]});
 			if (!currentItem.getValue()) {
 				for (let di = -1; di < 2; di++) {
 					for (let dj = -1; dj < 2; dj++) {

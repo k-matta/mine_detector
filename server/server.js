@@ -100,8 +100,12 @@ io.on('connection', (socket) => {
 		} if (square.isFlagged() || !square.isCovered()) {
 			callback({error: "Square connot be uncovered"});
 			return;
+		} if (games[id].isPaused()) {
+			callback({error: "No actions allowed while game is paused."});
+			return;
 		}
-		manageCalls(square, games[id]);
+		games[id].clickGridItem(square);
+		callback(games[id].changes);
 	});
 });
 
