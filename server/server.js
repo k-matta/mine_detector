@@ -109,11 +109,6 @@ io.on('connection', (socket) => {
 	});
 });
 
-
-io.on("click", (data) => {
-
-})
-
 app.post("/api/token", async (req, res) => {
 	console.log("Beginning authentication");
 	// Exchange the code for an access_token
