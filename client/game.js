@@ -647,7 +647,7 @@ async function clickGrid() {
 	if (!item) return;
 	if (!item.isFlagged()) {
 		const res = await socket.emitWithAck("uncover", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
-		console.log(Object.stringify(res));
+		console.log(JSON.stringify(res));
 		if (!res.error) {
 			const badFlags = game.updateGame(res);
 			console.log(badFlags);
