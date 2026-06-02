@@ -1,72 +1,120 @@
+/**
+ * The main Mine-Detector Game object (server-side).
+ * @class
+ */
 export class Game {
 	constructor() {
+		/** @type {Number} The size of the board */
 		this.size = 0;
+		/** @type {Array<Array<GridItem>>} The current state of the game board */
 		this.board = [];
+		/** @type {Number} The seed for the current game */
 		this.seed = 0;
+		/** @type {Number} The number of flags remaining */
 		this.flagsRemaining = 0;
+		/** @type {Number} The number of uncovered squares that are not bombs */
 		this.validRemaining = 0;
+		/** @type {Boolean} Whether or not the game is paused */
 		this.isPaused = false;
+		/** @type {Boolean} Whether or not the game has started */
 		this.isStarted = false;
+		/** @type {Array<Number>} A list of all start/pause times to calculate total time passed */
 		this.timeEvents = [];
+		/** @type {Number} The amount of time spent playing the current game */
 		this.time = 0;
 	}
-	
+
+	/**
+	 * Get the size of the current game board.
+	 * @returns {Number} The size of the current game board.
+	 */
 	getSize() {
 		return this.size;
 	}
-	
+
+	/**
+	 * Set the size of the game board.
+	 * @param {Number} size The size of the game board.
+	 */
 	setSize(size) {
 		this.size = size;
 	}
 
+	/**
+	 * Retrieves the game seed.
+	 * @returns {Number} The seed used to generate the game.
+	 */
 	getSeed() {
 		return this.seed;
 	}
 
+	/**
+	 * Sets the game seed.
+	 * @param {Number} gameSeed The seed used to generate the game.
+	 */
 	setSeed(gameSeed) {
 		this.seed = gameSeed;
 	}
 
+	/**
+	 * Get the number of flags left to use.
+	 * @returns {Number} The number of flags the user has remaining.
+	 */
 	getFlagsRemaining() {
 		return this.flagsRemaining;
 	}
 
+	/**
+	 * Increase the number of flags left to use (i.e., a flag was removed from the board).
+	 */
 	addFlag() {
 		this.flagsRemaining++;
 	}
 
+	/**
+	 * Decrease the number of flags left to use (i.e., a flag was added to the board).
+	 */
 	removeflag() {
 		this.flagsRemaining--;
 	}
 
+	/**
+	 * Set the number of flags left to use.
+	 * @param {Number} flags The number of flags the user has available.
+	 */
 	setFlagsRemaining(flags) {
 		this.flagsRemaining = flags;
 	}
 
+	/**
+	 * Get the number of uncovered squares that are not bombs.
+	 * @returns {Number} The number of safe squares left to uncover.
+	 */
 	getValidRemaining() {
 		return this.validRemaining;
 	}
 
+	/**
+	 * Decrease the number of valid squares left (i.e., a new square was uncovered).
+	 */
 	removeValid() {
 		this.validRemaining--;
 	}
 
+	/**
+	 * Set the number of valid squares left.
+	 * @param {Number} flags The number of valid squares left to uncover.
+	 */
 	setValidRemaining(valid) {
 		this.validRemaining = valid;
 	}
 
-	setInGame() {
-		this.inGame = true;
-	}
-
-	clearInGame() {
-		this.inGame = false;
-	}
-
-	getInGame() {
-		return this.inGame;
-	}
-
+	/**
+	 * Retrieves a square on the grid.
+	 * @param {Number} i The x-coordinate of the square to get.
+	 * @param {Number} j The y-coordinate of the square to get.
+	 * @returns {GridItem | null} The requested square or null if the coordinates are invalid.
+	 */
 	getItem(i, j) {
 		if (typeof(i) != "number" || typeof(j) != "number") return;
 		if (0 <= i && i < this.size && 0 <= j && j < this.size) {
@@ -74,6 +122,12 @@ export class Game {
 		} return;
 	}
 
+	/**
+	 * Generate the game board for the user.
+	 * @param {Number} boardSize The size of the board to generate.
+	 * @param {Number} numMines The number of mines on the board.
+	 * @param {Number | null} gameSeed The seed to use to generate the game. If null, one will be made based on the current time.
+	 */
 	generateGameBoard(boardSize, numMines, gameSeed = null) {
 		if (boardSize < 2) throw new Error("Invalid board size.");
 		if (numMines >= boardSize*boardSize) throw new Error("Invalid number of mines.");
@@ -140,6 +194,51 @@ export class Game {
 				this.board[i][j].setValue(adjacent);
 			}
 		}
+	}
+
+	/**
+	 * Performs a click action (uncovers) a square on the grid.
+	 * @param {GridItem} item The grid item that was clicked.
+	 */
+	clickGridItem(item) {
+		if (!item) return;
+		if (item.isMine()) {
+			endGame();
+			return;
+		}
+		const elements = [item];
+		let win = false;
+		while (elements.length) {
+			const currentItem = elements[0];
+			const [i, j] = currentItem.getCoords();
+			currentItem.clearCover();
+			if (!currentItem.getValue()) {
+				for (let di = -1; di < 2; di++) {
+					for (let dj = -1; dj < 2; dj++) {
+						if (!dj && !di) continue;
+						if (i+di < 0 || j + dj < 0) continue;
+						const next = this.getItem(i+di, j+dj);
+						if (!next) continue;
+						if ((next.isCovered()) &&
+							!next.isFlagged() &&
+							(!elements.find((item) => {
+								const [nextI, nextJ] = next.getCoords();
+								const [compI, compJ] = item.getCoords();
+								return nextI == compI && nextJ == compJ
+							}))) {
+								elements.push(next);
+						}
+					}
+				}
+			}
+			elements.splice(0, 1);
+			this.removeValid();
+			if (!this.getValidRemaining() && !this.getFlagsRemaining()) {
+				win = true;
+				break;
+			}
+		}
+		if (win) winGame();
 	}
 }
 

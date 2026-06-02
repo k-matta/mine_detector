@@ -52,16 +52,17 @@ const io = new Server(server, {
 
 io.serveClient(false);
 
+/** @type {Object.<string, Game>} An object of all current games. */
 const games = {};
 
 // Setup:
 io.on('connection', (socket) => {
+	const id = socket.handshake.auth.userId;
 	console.log("New connection: " , socket.handshake.auth.userId);
 	// socket.join(socket.handshake.auth.userId);
 	// console.log("Socket joined ", socket.handshake.auth.userId);
 	// games[socket.handshake.auth] = new Game();
 	socket.on("generate", (gameData, callback) => {
-		const id = socket.handshake.auth.userId;
 		console.log(gameData);
 		let boardSize, mines, seed;
 		try {
@@ -89,6 +90,18 @@ io.on('connection', (socket) => {
 		}
 		console.log(board);
 		callback({id, size: games[id].getSize(), flags: games[id].getFlagsRemaining(), board});
+	});
+
+	socket.on("uncover", (coords, callback) => {
+		const square = games[id].getItem(...coords);
+		if (!square) {
+			callback({error: "Invalid coordinates"});
+			return;
+		} if (square.isFlagged() || !square.isCovered()) {
+			callback({error: "Square connot be uncovered"});
+			return;
+		}
+		manageCalls(square, games[id]);
 	});
 });
 

@@ -5,72 +5,98 @@ const code = codeElement.innerText;
 document.body.removeChild(codeElement);
 codeElement = null;
 console.log("CODE:", code);
+
+/**
+ * The main Mine-Detector Game object.
+ * @class
+ */
 class Game {
 	constructor() {
+		/** @type {Number} The size of the board */
 		this.size = 0;
+		/** @type {Array<Array<GridItem>>} The current state of the game board */
 		this.board = [];
-		this.seed = 0;
-		this.inGame = false;
+		/** @type {Number} The number of flags remaining */
 		this.flagsRemaining = 0;
-		this.validRemaining = 0;
+		/** @type {Array<GridItem>} The items changed since the last time the board was updated. */
+		this.changes = [];
 	}
-	
+
+	/**
+	 * Get the size of the current game board.
+	 * @returns {Number} The size of the current game board.
+	 */
 	getSize() {
 		return this.size;
 	}
-	
+
+	/**
+	 * Set the size of the game board.
+	 * @param {Number} size The size of the game board.
+	 */
 	setSize(size) {
 		this.size = size;
 	}
 
-	getSeed() {
-		return this.seed;
-	}
-
-	setSeed(gameSeed) {
-		this.seed = gameSeed;
-	}
-
+	/**
+	 * Get the number of flags left to use.
+	 * @returns {Number} The number of flags the user has remaining.
+	 */
 	getFlagsRemaining() {
 		return this.flagsRemaining;
 	}
 
+	/**
+	 * Increase the number of flags left to use (i.e., a flag was removed from the board).
+	 */
 	addFlag() {
 		this.flagsRemaining++;
 	}
 
+	/**
+	 * Decrease the number of flags left to use (i.e., a flag was added to the board).
+	 */
 	removeflag() {
 		this.flagsRemaining--;
 	}
 
+	/**
+	 * Set the number of flags left to use.
+	 * @param {Number} flags The number of flags the user has available.
+	 */
 	setFlagsRemaining(flags) {
 		this.flagsRemaining = flags;
 	}
 
-	getValidRemaining() {
-		return this.validRemaining;
+	/**
+	 * Add a change since the board's last update.
+	 * @param {GridItem} change The new change to add.
+	 */
+	addChange(change) {
+		this.changes.push(change);
 	}
 
-	removeValid() {
-		this.validRemaining--;
+	/**
+	 * Get the changes since the last board update.
+	 * @returns {Array<GridItem>} The array of changes.
+	 */
+	getChanges() {
+		return this.changes;
 	}
 
-	setValidRemaining(valid) {
-		this.validRemaining = valid;
+	/**
+	 * Clear the list of changes since the last board update.
+	 */
+	clearChanges() {
+		this.changes = [];
 	}
 
-	setInGame() {
-		this.inGame = true;
-	}
-
-	clearInGame() {
-		this.inGame = false;
-	}
-
-	getInGame() {
-		return this.inGame;
-	}
-
+	/**
+	 * Retrieves a square on the grid.
+	 * @param {Number} i The x-coordinate of the square to get.
+	 * @param {Number} j The y-coordinate of the square to get.
+	 * @returns {GridItem | null} The requested square or null if the coordinates are invalid.
+	 */
 	getItem(i, j) {
 		if (typeof(i) != "number" || typeof(j) != "number") return;
 		if (0 <= i && i < this.size && 0 <= j && j < this.size) {
@@ -78,132 +104,166 @@ class Game {
 		} return;
 	}
 
-	generateGameBoard(boardSize, numMines, gameSeed = null) {
-		if (boardSize < 2) throw new Error("Invalid board size.");
-		if (numMines >= boardSize*boardSize) throw new Error("Invalid number of mines.");
-		if (gameSeed && typeof(gameSeed) != "number") throw new Error("Invalid seed.");
-
-		this.setSize(boardSize);
-		this.setFlagsRemaining(numMines);
-		this.setValidRemaining(this.size*this.size - this.getFlagsRemaining());
-		if (!gameSeed) {
-			console.log("Generating Seed");
-			const curDate = new Date();
-			gameSeed = curDate.getTime();
-		}
-		console.log(gameSeed);
-		const rand = mulberry32(gameSeed);
-		this.setSeed(gameSeed);
-		this.board = [];
-		let bombs = 0;
-		while (bombs < numMines) {
-			for (let i = 0; i < boardSize; i++) {
-				const row = [];
-				for (let j = 0; j < boardSize; j++) {
-					try {
-						if (bombs == numMines && game.getItem(boardSize-1, boardSize-1)) break;
-						if (this.board[i][j].isMine()) continue;
-					} catch {}
-					if (bombs == numMines) row.push(new GridItem(i, hideOver, 0, true, false));
-					else {
-						const square = new GridItem(i, j, Math.floor(rand()*10), true, false);
-						if (square.isMine()) {
-							bombs++;
-							// console.log("Coords: (" + String(j) + ", " + String(i) + ")");
-							// console.log(this.board.length, row.length)
-							// console.log(this.board);
-						}
-						try {
-							// console.log(this.board[i])
-							this.board[i][j] = square;
-							// console.log('Inserted');
-							// console.log(this.board[i])
-						} catch(e) {
-							// console.log(e);
-							// console.log("Added to row");
-							row.push(square);
-							// console.log(row);
-						}
-						// console.log("Bombs:", bombs, "\nMines:", mines, "\nExit?", bombs == mines);
-					}
-				}
-				if (this.board.length == size) continue;
-				this.board.push(row);
-				// console.log("Row was pushed");
-			}
-		}
-		console.log(this.board)
-		for (let i = 0; i < boardSize; i++) {
-			for (let j = 0; j < boardSize; j++) {
-				let adjacent = 0;
-				if (this.board[i][j].isMine()) continue;
-				for (let di = -1; di < 2; di++) {
-					try {
-						for (let dj = -1; dj < 2; dj++) {
-							if (!dj && !di) continue;
-							try {
-								if (this.board[i+di][j+dj].isMine()) adjacent++;
-							} catch {
-								continue;
-							}
-						}
-					} catch {
-						continue;
-					}
-				}
-				this.board[i][j].setValue(adjacent);
-				// console.log(adjacent);
-			}
+	/**
+	 * Sets a square on the grid.
+	 * @param {GridItem} item The new gridItem for the board.
+	 * @param {Number | null} i The x-coordinate of the square to change.
+	 * @param {Number | null} j The y-coordinate of the square to change.
+	 */
+	setItem(item, i = null, j = null) {
+		if (!i || !j) {
+			this.board[item.getCoords[0]][item.getCoords[1]] = item;
+		} else if (typeof(i) != "number" || typeof(j) != "number") return;
+		if (0 <= i && i < this.size && 0 <= j && j < this.size) {
+			this.board[i][j] = item;
 		}
 	}
 
+	/**
+	 * @typedef {Object} gameStartData
+	 * @property {Number} size The size of the game board.
+	 * @property {Number} flags The number of flags available to the user.
+	 */
+
+	/**
+	 * Generate an empty starting board with all squares covered.
+	 * @param {gameStartData} gameData The game setup parameters.
+	 */
+	generateGameBoard(gameData) {
+		if (gameData.size < 2) throw new Error("Invalid board size.");
+		
+		this.setSize(gameData.size);
+		this.setFlagsRemaining(gameData.flags);
+		this.board = [];
+		for (let i = 0; i < this.size; i++) {
+			const row = [];
+			for (let j = 0; j < this.size; j++) {
+				row.push(new GridItem(i, j, 11));
+			}
+			this.board.push(row);
+		}
+	}
+
+
+	/**
+	 * @typedef {Object} gridData
+	 * @property {Number} val The value of the current square.
+	 * @property {Number} i The x-coordinate of the current square.
+	 * @property {Number} j The y-coordinate of the current square.
+	 */
+	
+	/**
+	 * 
+	 * @param {Array<gridData>} gameData 
+	 */
+	updateGame(gameData) {
+		let flagChange = 0;
+		for (let i = 0; i < gameData.length; i++) {
+			const square = gameData[i];
+			const newItem = new GridItem(square.i, square.j, square.val);
+			this.addChange(newItem);
+			this.getItem(square.i, square.j).isFlagged() && !newItem.isFlagged() ? flagChange++ : !this.getItem(square.i, square.j).isFlagged() && newItem.isFlagged() ? flagChange-- : flagChange = flagChange;
+			this.setItem(newItem);
+		}
+		this.setFlagsRemaining(this.getFlagsRemaining() + flagChange);
+	}
 }
 
+/**
+ * A square within the Mine-Detector game grid.
+ * @class
+ */
 class GridItem {
-	constructor(i, j, value, covered, flagged) {
+	/**
+	 * The constructor for the Mine-Detector GridItem class.
+	 * @param {Number} i The x-coordinate of the grid item.
+	 * @param {Number} j The y-coordinate of the grid item.
+	 * @param {Number} value The value (covered, flagged, bomb, number) of the grid item.
+	 * @param {Boolean} covered Whether or not this grid item is covered.
+	 * @param {Boolean} flagged Whether or not this grid item has been flagged.
+	 */
+	constructor(i, j, value) {
+		/** @type {Number} The x-coordinate of the grid item. */
 		this.i = i;
+		/** @type {Number} j The y-coordinate of the grid item. */
 		this.j = j;
+		/** @type {Number} value The value (covered, flagged, bomb, number) of the grid item. */
 		this.value = value;
-		this.covered = covered;
-		this.flagged = flagged;
+		/** @type {Boolean} covered Whether or not this grid item is covered. */
+		this.covered = this.value > 9 ? true : false;
+		/** @type {Boolean} flagged Whether or not this grid item has been flagged. */
+		this.flagged = this.value == 10 ? true : false;
 	}
 
+	/**
+	 * Returns the coordinates of the current grid item as an array.
+	 * @returns {Array<Number>} The x- and y-coordinates of the current grid item.
+	 */
 	getCoords() {
 		return [this.i, this.j];
 	}
 
+	/**
+	 * Indicates whether the current grid item is a bomb.
+	 * @returns {Boolean} true if the grid item is a bomb; false otherwise.
+	 */
 	isMine() {
 		return this.value == 9;
 	}
 
+	/**
+	 * Sets the value of the current grid item (number from 0-11).
+	 * @param {Number} value The value of the current grid item.
+	 */
 	setValue(value) {
 		this.value = value;
 	}
 
+	/**
+	 * Retrieves the value of the current grid item.
+	 * @returns {Number} Returns the item's value.
+	 */
 	getValue() {
 		return this.value;
 	}
 
-	toggleFlagged() {
-		this.flagged = !this.flagged;
-	}
-
+	/**
+	 * Marks the current grid item as flagged and sets its value accordingly.
+	 */
 	setFlag() {
 		this.flagged = true;
+		this.setValue(10);
 	}
 
+	/**
+	 * Removes a flag from the current grid item and sets its value accordingly.
+	 */
 	clearFlag() {
 		this.flagged = false;
+		this.setValue(11);
 	}
 
+	/**
+	 * Indicates whether the current grid item is flagged.
+	 * @returns {Boolean} true if the item is flagged; false otherwise.
+	 */
 	isFlagged() {
 		return this.flagged;
 	}
 
-	clearCover() {
+	/**
+	 * Marks the grid item as uncovered and sets its value accordingly.
+	 * @param {Number} value The value to set the grid item to.
+	 */
+	clearCover(value) {
 		this.covered = false;
+		this.setValue(value);
 	}
 	
+	/**
+	 * Indicates whether the current grid item is covered.
+	 * @returns {Boolean} true if the item is covered; false otherwise.
+	 */
 	isCovered() {
 		return this.covered;
 	}
@@ -213,6 +273,8 @@ const socket = io(import.meta.env.VITE_SERVER_URL, {
 	auth: {userId: code},
 	path: "/socket/"
 });
+
+// Defining important HTMLELement constants.
 const home = document.getElementById("menu");
 const app = document.getElementById("app");
 const gameDisplay = document.getElementById("game");
@@ -245,11 +307,13 @@ async function startGame(boardSize, mines, seed="") {
 	console.log(JSON.stringify(res));
 	if (res.error) {
 		parameterError();
+		return;
 	}
 	console.log("Response:", JSON.stringify(res));
+	game.generateGameBoard(res);
 	home.style.display = "none";
 	app.style.display = "block";
-	createInnerBoard(res.size, res.board);
+	createInnerBoard(game);
 	flagIndicator.innerText = res.flags;
 
 	// Force board styles for pausing
@@ -267,10 +331,6 @@ async function startGame(boardSize, mines, seed="") {
 	//Force Styles
 	document.getElementById("board-container").style.width = String(width) + "px";
 	document.getElementById("board-container").style.height = String(height) + "px";
-	const throwaway = app.offsetWidth;
-	console.log(throwaway)
-	const throwaway2 = gameDisplay.offsetWidth;
-	console.log(throwaway2)
 
 	time.innerText = "0:00";
 	timerId = setInterval(() => {
@@ -286,7 +346,11 @@ async function startGame(boardSize, mines, seed="") {
 	}, 1000);
 }
 
-function createInnerBoard(size, board) {
+/**
+ * Create the HTML game board based on current game data
+ * @param {Game} game The current game object.
+ */
+function createInnerBoard(game) {
 	let outerBoard = document.getElementById("board-container");
 	if (!outerBoard) {
 		outerBoard = document.createElement("section");
@@ -296,23 +360,44 @@ function createInnerBoard(size, board) {
 	const innerBoard = document.createElement("div");
 	innerBoard.id = "main-board";
 	outerBoard.appendChild(innerBoard)
-	for (let i = 0; i < size; i++) {
+	for (let i = 0; i < game.getSize(); i++) {
 		console.log("running loop")
 		const row = document.createElement("div");
 		row.classList.add('row');
-		for (let j = 0; j < size; j++) {
+		for (let j = 0; j < game.getSize(); j++) {
 			const gridItem = document.createElement("div");
 			gridItem.classList.add("grid");
-			if (board[i][j] == 10 || board[i][j] == 11) {
+			if (game.getItem(i, j).isFlagged() || game.getItem(i, j).isCovered()) {
 				gridItem.addEventListener('click', clickGrid);
 				gridItem.addEventListener('contextmenu', rClickGrid);
 			}
-			gridItem.innerHTML = symbols[board[i][j]];
+			gridItem.innerHTML = symbols[game.getItem(i, j).getValue()];
 			gridItem.id = `${i}-${j}`;
 			row.appendChild(gridItem);
 		}
 		innerBoard.appendChild(row);
 	}
+	flagIndicator.innerText = game.getFlagsRemaining();
+}
+
+/**
+ * Update the HTML game board based on the changes to current game data.
+ * @param {Game} game The current game object.
+ */
+function updateInnerBoard(game) {
+	let outerBoard = document.getElementById("board-container");
+	const innerBoard = document.createElement("div");
+	innerBoard.id = "main-board";
+	outerBoard.appendChild(innerBoard)
+	for (let change of game.getChanges()) {
+		const gridItem = document.getElementById(`${change.getCoords()[0]}-${change.getCoords()[1]}`);
+		if (!change.isCovered()) {
+			gridItem.removeEventListener('click', clickGrid);
+			gridItem.removeEventListener('contextmenu', rClickGrid);
+		}
+		gridItem.innerHTML = symbols[change.getValue()];
+	}
+	flagIndicator.innerText = game.getFlagsRemaining();
 }
 
 /**
@@ -343,7 +428,7 @@ function generateBoard(size, mines, seed = null) {
 					if (board[i][j] == 9) continue;
 				} catch {}
 
-				const square = new GridItem(Math.floor(rand()*10), true, false);
+				const square = new GridItem(i, j, Math.floor(rand()*10));
 				console.log(j, i, bomb, "bomb?", bomb == 9)
 				if (square.isMine()) {
 					bombs++;
@@ -399,61 +484,6 @@ function generateBoard(size, mines, seed = null) {
 	return board;
 }
 
-function manageCalls(item) {
-	console.log("Called.")
-	console.log(item.getCoords())
-	const [i, j] = item.getCoords();
-	const source = document.getElementById(`${i}-${j}`);
-	// console.log("COORDS:", i, j);
-	// console.log("BOARD:", board, "\nNUMBER:", board[i][j], typeof(board[i][j]));
-	// console.log(board[i][j] == 9);
-	if (item.isMine()) {
-		// console.log("Entered IF");
-		source.innerHTML = symbols[9];
-		source.removeEventListener("click", clickGrid);
-		source.removeEventListener("contextmenu", rClickGrid);
-		endGame();
-		return;
-	}
-	const elements = [item];
-	let win = false;
-	while (elements.length) {
-		const currentItem = elements[0];
-		const [i, j] = currentItem.getCoords();
-		const current = document.getElementById(`${i}-${j}`);
-		current.innerHTML = symbols[currentItem.getValue()];
-		current.classList.remove("covered");
-		currentItem.clearCover();
-		if (!currentItem.getValue()) {
-			for (let di = -1; di < 2; di++) {
-				for (let dj = -1; dj < 2; dj++) {
-					if (!dj && !di) continue;
-					if (i+di < 0 || j + dj < 0) continue;
-					const next = game.getItem(i+di, j+dj);
-					if (!next) continue;
-					if ((next.isCovered()) &&
-						!next.isFlagged() &&
-						(!elements.find((item) => {
-							const [nextI, nextJ] = next.getCoords();
-							const [compI, compJ] = item.getCoords();
-							return nextI == compI && nextJ == compJ
-						}))) {
-							elements.push(next);
-					}
-				}
-			}
-		}
-		current.removeEventListener("click", clickGrid);
-		current.removeEventListener("contextmenu", rClickGrid);
-		elements.splice(0, 1);
-		game.removeValid();
-		if (!game.getValidRemaining() && !game.getFlagsRemaining()) {
-			win = true;
-		}
-	}
-	if (win) winGame();
-}
-
 function endGame() {
 	// console.log("Endgame");
 	const squares = document.getElementsByClassName("covered");
@@ -465,7 +495,7 @@ function endGame() {
 			const itemHTML = document.getElementById(`${i}-${j}`);
 			itemHTML.removeEventListener("click", clickGrid);
 			itemHTML.removeEventListener("contextmenu", rClickGrid);
-			item.clearCover();
+			item.clearCover(item.getValue());
 			itemHTML.innerHTML = symbols[item.getValue()];
 			if (item.isMine() && item.isFlagged()) {
 				itemHTML.style.backgroundColor = "lightgreen";
@@ -604,11 +634,16 @@ returner.addEventListener("click", () => {
 	home.style.display = "block";
 });
 
-function clickGrid() {
+async function clickGrid() {
 	const item = game.getItem(Number(this.id.split("-")[0]), Number(this.id.split("-")[1]));
 	if (!item) return;
 	if (!item.isFlagged()) {
-		manageCalls(item);
+		const res = await socket.emitWithAck("uncover", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
+		if (!res.error) {
+			game.updateGame(res);
+			updateInnerBoard(game);
+		}
+		// manageCalls(item);
 	}
 }
 
