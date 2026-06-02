@@ -147,11 +147,11 @@ export class Game {
 		this.setFlagsRemaining(numMines);
 		this.setValidRemaining(this.size*this.size - this.getFlagsRemaining());
 		if (!gameSeed) {
-			console.log("Generating Seed");
+			// console.log("Generating Seed");
 			const curDate = new Date();
 			gameSeed = curDate.getTime();
 		}
-		console.log(gameSeed);
+		// console.log(gameSeed);
 		const rand = mulberry32(gameSeed);
 		this.setSeed(gameSeed);
 		this.board = [];
@@ -182,7 +182,7 @@ export class Game {
 				this.board.push(row);
 			}
 		}
-		console.log(this.board)
+		// console.log(this.board)
 		for (let i = 0; i < boardSize; i++) {
 			for (let j = 0; j < boardSize; j++) {
 				let adjacent = 0;
