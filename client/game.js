@@ -501,17 +501,18 @@ function endGame(badFlags) {
 	for (let i = 0; i < game.getSize(); i++) {
 		for (let j = 0; j < game.getSize(); j++) {
 			const item = game.getItem(i, j);
-			if (!item.isCovered()) continue;
 			const itemHTML = document.getElementById(`${i}-${j}`);
-			itemHTML.removeEventListener("click", clickGrid);
-			itemHTML.removeEventListener("contextmenu", rClickGrid);
-			item.clearCover(item.getValue());
-			itemHTML.innerHTML = symbols[item.getValue()];
-			if (badFlags.find((square) => square[0] == i && square[1] == j)) {
-				itemHTML.style.backgroundColor = "red";
-				if (item.isMine()) unflagged++;
-			} else if (item.isMine()) {
-				itemHTML.style.backgroundColor = "lightgreen";
+			if ((itemHTML.innerText == symbols[10] || itemHTML.innerText == symbols[11])) {
+				itemHTML.removeEventListener("click", clickGrid);
+				itemHTML.removeEventListener("contextmenu", rClickGrid);
+				item.clearCover();
+				itemHTML.innerHTML = symbols[item.getValue()];
+				if (badFlags.find((square) => square[0] == i && square[1] == j)) {
+					itemHTML.style.backgroundColor = "red";
+					if (item.isMine()) unflagged++;
+				} else if (item.isMine()) {
+					itemHTML.style.backgroundColor = "lightgreen";
+				}
 			}
 		}
 	}
