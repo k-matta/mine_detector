@@ -215,8 +215,7 @@ export class Game {
 		if (!item) return;
 		console.log(item.isMine());
 		if (item.isMine()) {
-			endGame();
-			return;
+			return this.endGame();
 		}
 		const elements = [item];
 		let win = false;
@@ -226,7 +225,7 @@ export class Game {
 			console.log(i, j);
 			currentItem.clearCover();
 			this.changes.push({val: currentItem.getValue(), i: currentItem.getCoords[0], j: currentItem.getCoords()[1]});
-			console.log(changes);
+			console.log(this.changes);
 			if (!currentItem.getValue()) {
 				for (let di = -1; di < 2; di++) {
 					for (let dj = -1; dj < 2; dj++) {
@@ -256,6 +255,18 @@ export class Game {
 			}
 		}
 		if (win) winGame();
+	}
+
+	endGame() {
+		for (let i = 0; i < this.getSize(); i++) {
+			for (let j = 0; j < this.getSize(); j++) {
+				const item = this.getItem(i, j);
+				if (!item.isCovered()) continue;
+				item.clearCover();
+				this.changes.push({val: item.getValue(), i: item.getCoords[0], j: item.getCoords()[1]})
+				// if (item.isMine() && !item.isFlagged()) unflagged++;
+			}
+		}
 	}
 }
 

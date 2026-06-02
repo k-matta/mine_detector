@@ -153,19 +153,31 @@ class Game {
 	 */
 	
 	/**
-	 * 
-	 * @param {Array<gridData>} gameData 
+	 * @typedef {Object} updateData
+	 * @property {Array<gridData} changes The changes to the current state of the board.
+	 * @property {Number} unflagged If game over, the number of unflagged bombs on the board; otherwise, null.
+	 */
+
+	/**
+	 * Updates the current game board and the state of the game (win/lose)
+	 * @param {updateData} gameData The data needed to update the game board.
+	 * @returns {Array<Array<Number>> | null} An array of coordinate arrays if game lost; null otherwise.
 	 */
 	updateGame(gameData) {
+		const badFlags = [];
 		let flagChange = 0;
 		for (let i = 0; i < gameData.length; i++) {
 			const square = gameData[i];
 			const newItem = new GridItem(square.i, square.j, square.val);
 			this.addChange(newItem);
-			this.getItem(square.i, square.j).isFlagged() && !newItem.isFlagged() ? flagChange++ : !this.getItem(square.i, square.j).isFlagged() && newItem.isFlagged() ? flagChange-- : flagChange = flagChange;
+			const oldItem = this.getItem(square.i, square.j)
+			oldItem.isFlagged() && !newItem.isFlagged() ? flagChange++ : !this.getItem(square.i, square.j).isFlagged() && newItem.isFlagged() ? flagChange-- : flagChange = flagChange;
+			if (newItem.isMine() && !oldItem.isFlagged) badFlags.push(newItem.getCoords());
+			if (!newItem.isMine() && oldItem.isFlagged) badFlags.push(newItem.getCoords());
 			this.setItem(newItem);
 		}
 		this.setFlagsRemaining(this.getFlagsRemaining() + flagChange);
+		return badFlags;
 	}
 }
 
@@ -484,9 +496,7 @@ function generateBoard(size, mines, seed = null) {
 	return board;
 }
 
-function endGame() {
-	// console.log("Endgame");
-	const squares = document.getElementsByClassName("covered");
+function endGame(badFlags) {
 	let unflagged = 0;
 	for (let i = 0; i < game.getSize(); i++) {
 		for (let j = 0; j < game.getSize(); j++) {
@@ -497,13 +507,11 @@ function endGame() {
 			itemHTML.removeEventListener("contextmenu", rClickGrid);
 			item.clearCover(item.getValue());
 			itemHTML.innerHTML = symbols[item.getValue()];
-			if (item.isMine() && item.isFlagged()) {
-				itemHTML.style.backgroundColor = "lightgreen";
+			if (badFlags.find((square) => square[0] == i && square[1] == j)) {
+				itemHTML.style.backgroundColor = "red";
+				if (item.isMine()) unflagged++;
 			} else if (item.isMine()) {
-				itemHTML.style.backgroundColor = "red";
-				unflagged++;
-			} else if (item.isFlagged()) {
-				itemHTML.style.backgroundColor = "red";
+				itemHTML.style.backgroundColor = "lightgreen";
 			}
 		}
 	}
@@ -640,8 +648,9 @@ async function clickGrid() {
 	if (!item.isFlagged()) {
 		const res = await socket.emitWithAck("uncover", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
 		if (!res.error) {
-			game.updateGame(res);
-			updateInnerBoard(game);
+			const badFlags = game.updateGame(res);
+			if (badFlags) endGame(badFlags);
+			else updateInnerBoard(game);
 		}
 		// manageCalls(item);
 	}
