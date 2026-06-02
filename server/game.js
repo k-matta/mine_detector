@@ -15,7 +15,7 @@ export class Game {
 		/** @type {Number} The number of uncovered squares that are not bombs */
 		this.validRemaining = 0;
 		/** @type {Boolean} Whether or not the game is paused */
-		this.isPaused = false;
+		this.paused = false;
 		/** @type {Boolean} Whether or not the game has started */
 		this.isStarted = false;
 		/** @type {Array<Number>} A list of all start/pause times to calculate total time passed */
@@ -109,6 +109,14 @@ export class Game {
 	 */
 	setValidRemaining(valid) {
 		this.validRemaining = valid;
+	}
+
+	/**
+	 * Indicates whether the current game is paused.
+	 * @returns {Boolean} true if the game is paused; false otherwise.
+	 */
+	isPaused() {
+		return this.paused;
 	}
 
 	/**
