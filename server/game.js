@@ -3,6 +3,14 @@
  * @class
  */
 export class Game {
+
+	/**
+	 * @typedef {Object} gridData
+	 * @property {Number} val The value of the current square.
+	 * @property {Number} i The x-coordinate of the current square.
+	 * @property {Number} j The y-coordinate of the current square.
+	 */
+
 	constructor() {
 		/** @type {Number} The size of the board */
 		this.size = 0;
@@ -22,8 +30,24 @@ export class Game {
 		this.timeEvents = [];
 		/** @type {Number} The amount of time spent playing the current game */
 		this.time = 0;
-		/** @type {Array} An array of changes to sync with the client */
+		/** @type {Array<gridData>} An array of changes to sync with the client */
 		this.changes = [];
+	}
+
+	/**
+	 * Start the game timer.
+	 */
+	start() {
+		this.isStarted = true;
+		timeEvents.push(Date.now());
+	}
+
+	/**
+	 * Indicates whether or not the game has been started.
+	 * @return {Boolean} true if the game has been started; false otherwise.
+	 */
+	getStarted() {
+		return this.isStarted;
 	}
 
 	/**
@@ -117,6 +141,28 @@ export class Game {
 	 */
 	isPaused() {
 		return this.paused;
+	}
+
+	/**
+	 * Pauses the game.
+	 */
+	pause() {
+		this.paused = true;
+		this.timeEvents.push(Date.now());
+	}
+
+	/**
+	 * Resumes the game.
+	 */
+	resume() {
+		this.paused = false;
+		this.timeEvents.push(Date.now());
+		for (let i = 0; i < this.size; i++) {
+			for (let j = 0; j < this.size; j++) {
+				const square = this.getItem(i, j);
+				this.changes.push({val: square.isFlagged() ? 10 : square.isCovered() ? 11 : square.getValue(), i, j});
+			}
+		}
 	}
 
 	/**

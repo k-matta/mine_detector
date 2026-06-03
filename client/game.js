@@ -20,6 +20,8 @@ class Game {
 		this.flagsRemaining = 0;
 		/** @type {Array<GridItem>} The items changed since the last time the board was updated. */
 		this.changes = [];
+		/** @type {Boolean} Whether or not the game is paused */
+		this.paused = false;
 	}
 
 	/**
@@ -92,6 +94,46 @@ class Game {
 	}
 
 	/**
+	 * Sets the game's state to paused.
+	 */
+	pause() {
+		this.paused = true;
+		this.board = [];
+	}
+
+	/**
+	 * Indicates whether the game is paused.
+	 * @returns {Boolean} true if the game is paused; false otherwise.
+	 */
+	isPaused() {
+		return this.paused;
+	}
+
+	/**
+	 * @typedef {Object} gridData
+	 * @property {Number} val The value of the current square.
+	 * @property {Number} i The x-coordinate of the current square.
+	 * @property {Number} j The y-coordinate of the current square.
+	 */
+
+	/**
+	 * Resumes the game.
+	 * @param {Array<gridData>} changes The current state of the game board to resume from.
+	 */
+	resume(changes) {
+		this.paused = false;
+		for (let i = 0; i < this.size; i++) {
+			let row = [];
+			for (let j = 0; j < this.size; j++) {
+				const index = i * this.size + j;
+				const square = new GridItem(changes[index].i, changes[index].j, changes[index].val);
+				row.push(square);
+			}
+			this.board.push(row);
+		}
+	}
+
+	/**
 	 * Retrieves a square on the grid.
 	 * @param {Number} i The x-coordinate of the square to get.
 	 * @param {Number} j The y-coordinate of the square to get.
@@ -144,14 +186,6 @@ class Game {
 			this.board.push(row);
 		}
 	}
-
-
-	/**
-	 * @typedef {Object} gridData
-	 * @property {Number} val The value of the current square.
-	 * @property {Number} i The x-coordinate of the current square.
-	 * @property {Number} j The y-coordinate of the current square.
-	 */
 	
 	/**
 	 * @typedef {Object} updateData
@@ -545,7 +579,6 @@ function gameOver(seed) {
 	overScreen.children[2].children[1].innerText = seed;
 	overScreen.style.display = "block";
 	game.setFlagsRemaining(0);
-	game.clearInGame();
 	clearInterval(timerId);
 }
 
@@ -610,17 +643,29 @@ customStart.addEventListener("click", async (event) => {
 	}
 });
 
-pause.addEventListener("click", () => {
-	if (!game.getInGame()) return;
+pause.addEventListener("click", async () => {
+	if (game.isPaused()) return;
+	const res = await socket.emitWithAck("pause");
+	if (res.error) {
+		console.log(res.error);
+		return;
+	}
+	game.pause();
 	clearInterval(timerId);
-
+	
 	document.getElementById("board-container").removeChild(document.getElementById("main-board"));
 	pause.style.display = "none";
 	play.style.display = "inline-block";
 });
 
-play.addEventListener("click", () => {
-	if (!game.getInGame()) return;
+play.addEventListener("click", async () => {
+	if (!game.isPaused()) return;
+	const res = await socket.emitWithAck("play");
+	if (res.error) {
+		console.log(res.error);
+		return;
+	}
+	game.resume(res.changes);
 	timerId = setInterval(() => {
 		let [min, sec] = time.innerText.split(":").map((a) => Number(a));
 		sec++;

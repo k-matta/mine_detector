@@ -104,6 +104,7 @@ io.on('connection', (socket) => {
 			callback({error: "Square connot be uncovered"});
 			return;
 		}
+		if (!games[id].getStarted()) games[id].start();
 		const lost = games[id].clickGridItem(square);
 		console.log(games[id].changes);
 		callback({changes: games[id].changes, seed: lost ? games[id].getSeed() : null});
@@ -146,6 +147,29 @@ io.on('connection', (socket) => {
 		games[id].addFlag();
 		square.clearFlag();
 		callback({flags: games[id].getFlagsRemaining()});
+	});
+
+	socket.on("pause", (callback) => {
+		if (games[id].isPaused()) {
+			callback({error: "Game is already paused."});
+			return;
+		}
+		games[id].pause();
+		callback({success: "Game Paused."});
+	});
+
+	socket.on("play", (callback) => {
+		if (!games[id].isPaused()) {
+			callback({error: "Game is not paused."});
+			return;
+		}
+		games[id].resume();
+		callback({changes: games[id].changes, flags: games[id].getFlagsRemaining()});
+		games[id].changes = [];
+	});
+
+	socket.on("disconnect", () => {
+		delete games[id];
 	});
 });
 
