@@ -39,7 +39,7 @@ export class Game {
 	 */
 	start() {
 		this.isStarted = true;
-		timeEvents.push(Date.now());
+		this.timeEvents.push(Date.now());
 	}
 
 	/**
