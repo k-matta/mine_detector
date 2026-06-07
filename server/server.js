@@ -61,9 +61,11 @@ io.on('connection', (socket) => {
 	console.log("New connection: " , socket.handshake.auth.userId);
 	// socket.join(socket.handshake.auth.userId);
 	// console.log("Socket joined ", socket.handshake.auth.userId);
-	// games[socket.handshake.auth] = new Game();
 	socket.on("generate", (gameData, callback) => {
-		console.log(gameData);
+		if (typeof(games[id]) == "Game") {
+			callback({error: "Game already in progress."});
+			return;
+		}
 		let boardSize, mines, seed;
 		try {
 			({boardSize, mines, seed} = gameData);
@@ -73,25 +75,22 @@ io.on('connection', (socket) => {
 		if (typeof(boardSize) != "number" || typeof(mines) != "number" || (typeof(seed) != "number" && seed)) callback({error: "Invalid parameters"});
 		try {
 			games[`${id}`] = new Game();
+			console.log(typeof(games[id]));
 			games[`${id}`].generateGameBoard(boardSize, mines, seed);
 		} catch(err) {
 			console.log(err);
 			callback({error: "Invalid parameters"});
 			return;
 		}
-		const board = [];
-		for (let i = 0; i < boardSize; i++) {
-			const row = [];
-			for (let j = 0; j < boardSize; j++) {
-				row.push(11);
-			}
-			board.push(row);
-		}
-		callback({id, size: games[id].getSize(), flags: games[id].getFlagsRemaining(), board});
+		callback({id, size: games[id].getSize(), flags: games[id].getFlagsRemaining()});
 		console.log("Board created");
 	});
 
 	socket.on("uncover", (coords, callback) => {
+		if (games[id].isOver()) {
+			callback({error: "Game cannot be modified if game is over."});
+			return;
+		}
 		if (games[id].isPaused()) {
 			callback({error: "No actions allowed while game is paused."});
 			return;
@@ -105,18 +104,30 @@ io.on('connection', (socket) => {
 			return;
 		}
 		if (!games[id].getStarted()) games[id].start();
-		const lost = games[id].clickGridItem(square);
-		console.log(games[id].changes);
-		callback({changes: games[id].changes, seed: lost ? games[id].getSeed() : null});
-		games[id].changes = [];
+		const gameStatus = games[id].clickGridItem(square);
+		games[id].calculateTime();
+		callback({changes: games[id].getChanges(), seed: gameStatus ? games[id].getSeed() : null, time: games[id].getTime(), updated: Date.now()});
+		games[id].clearChanges();
 	});
 
 	socket.on("flag", (coords, callback) => {
+		if (games[id].isOver()) {
+			callback({error: "Game cannot be modified if game is over."});
+			return;
+		}
 		if (games[id].isPaused()) {
 			callback({error: "No actions allowed while game is paused."});
 			return;
 		} if (!games[id].getFlagsRemaining()) {
 			callback({error: "No flags left to use"})
+		}
+		if (coords.length > 2 || coords.length < 2) {
+			callback({error: "Invalid parameters."});
+			return;
+		}
+		if (typeof(coords[0]) != "number" || typeof(coords[1]) != "number") {
+			callback({error: "Invalid parameters"});
+			return;
 		}
 		const square = games[id].getItem(...coords);
 		if (!square) {
@@ -128,10 +139,15 @@ io.on('connection', (socket) => {
 		}
 		games[id].removeFlag();
 		square.setFlag();
-		callback({flags: games[id].getFlagsRemaining()});
+		games[id].calculateTime();
+		callback({flags: games[id].getFlagsRemaining(), time: games[id].getTime(), updated: Date.now()});
 	});
 
 	socket.on("unflag", (coords, callback) => {
+		if (games[id].isOver()) {
+			callback({error: "Game cannot be modified if game is over."});
+			return;
+		}
 		if (games[id].isPaused()) {
 			callback({error: "No actions allowed while game is paused."});
 			return;
@@ -146,26 +162,37 @@ io.on('connection', (socket) => {
 		}
 		games[id].addFlag();
 		square.clearFlag();
-		callback({flags: games[id].getFlagsRemaining()});
+		games[id].calculateTime();
+		callback({flags: games[id].getFlagsRemaining(), time: games[id].getTime(), updated: Date.now()});
 	});
 
 	socket.on("pause", (callback) => {
+		if (games[id].isOver()) {
+			callback({error: "Game cannot be modified if game is over."});
+			return;
+		}
 		if (games[id].isPaused()) {
 			callback({error: "Game is already paused."});
 			return;
 		}
 		games[id].pause();
-		callback({success: "Game Paused."});
+		games[id].calculateTime();
+		callback({success: "Game Paused.", time: games[id].getTime(), updated: Date.now()});
 	});
 
 	socket.on("play", (callback) => {
+		if (games[id].isOver()) {
+			callback({error: "Game cannot be modified if game is over."});
+			return;
+		}
 		if (!games[id].isPaused()) {
 			callback({error: "Game is not paused."});
 			return;
 		}
 		games[id].resume();
-		callback({changes: games[id].changes, flags: games[id].getFlagsRemaining()});
-		games[id].changes = [];
+		games[id].calculateTime();
+		callback({changes: games[id].getChanges(), flags: games[id].getFlagsRemaining(), time: games[id].getTime(), updated: Date.now()});
+		games[id].clearChanges();
 	});
 
 	socket.on("disconnect", () => {

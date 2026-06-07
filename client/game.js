@@ -348,6 +348,43 @@ const game = new Game();
 
 let timerId = 0;
 
+function mainTimer() {
+	let [min, sec] = time.innerText.split(":").map((a) => Number(a));
+	sec++;
+	if (sec > 59) {
+		sec = "00";
+		min++;
+	} else if (sec < 10) {
+		sec = `0${sec}`;
+	}
+	time.innerText = `${min}:${sec}`;
+}
+
+function tempTimer() {
+	let [min, sec] = time.innerText.split(":").map((a) => Number(a));
+	sec++;
+	if (sec > 59) {
+		sec = "00";
+		min++;
+	} else if (sec < 10) {
+		sec = `0${sec}`;
+	}
+	time.innerText = `${min}:${sec}`;
+	clearInterval(timerId);
+	timerId = setInterval(mainTimer, 1000);
+}
+
+function updateTimer(gameTime, updated, clearPrevious) {
+	const currentTime = Date.now();
+	const totalTime = gameTime + currentTime - updated;
+	let sec = Math.round(totalTime/1000) % 60;
+	let min = Math.round(totalTime/60000);
+	if (clearPrevious) clearInterval(timerId);
+	time.innerText = `${min}:${sec}`;
+	const offset = totalTime % 1000;
+	timerId = setInterval(tempTimer, 1000-offset);
+}
+
 async function startGame(boardSize, mines, seed="") {
 	console.log(boardSize, mines, seed, typeof(seed));
 	const res = await socket.emitWithAck("generate", {boardSize, mines, seed});
@@ -380,17 +417,7 @@ async function startGame(boardSize, mines, seed="") {
 	document.getElementById("board-container").style.height = String(height) + "px";
 
 	time.innerText = "0:00";
-	timerId = setInterval(() => {
-		let [min, sec] = time.innerText.split(":").map((a) => Number(a));
-		sec++;
-		if (sec > 59) {
-			sec = "00";
-			min++;
-		} else if (sec < 10) {
-			sec = `0${sec}`;
-		}
-		time.innerText = `${min}:${sec}`;
-	}, 1000);
+	timerId = setInterval(mainTimer, 1000);
 }
 
 /**
@@ -650,8 +677,13 @@ pause.addEventListener("click", async () => {
 		console.log(res.error);
 		return;
 	}
-	game.pause();
+	const currentTime = Date.now();
 	clearInterval(timerId);
+	game.pause();
+	const totalTime = res.time + currentTime - res.updated;
+	let sec = Math.round(totalTime/1000) % 60;
+	let min = Math.round(totalTime/60000);
+	time.innerText = `${min}:${sec}`;
 	
 	document.getElementById("board-container").removeChild(document.getElementById("main-board"));
 	pause.style.display = "none";
@@ -665,18 +697,9 @@ play.addEventListener("click", async () => {
 		console.log(res.error);
 		return;
 	}
+	updateTimer(res.time, res.updated, false);
+
 	game.resume(res.changes);
-	timerId = setInterval(() => {
-		let [min, sec] = time.innerText.split(":").map((a) => Number(a));
-		sec++;
-		if (sec > 59) {
-			sec = "00";
-			min++;
-		} else if (sec < 10) {
-			sec = `0${sec}`;
-		}
-		time.innerText = `${min}:${sec}`;
-	}, 1000);
 	createInnerBoard(game);
 	pause.style.display = "inline-block";
 	play.style.display = "none";
@@ -698,15 +721,19 @@ async function clickGrid() {
 	if (!item.isFlagged()) {
 		const res = await socket.emitWithAck("uncover", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
 		console.log(JSON.stringify(res));
-		if (!res.error) {
-			const badFlags = game.updateGame(res.changes);
-			if (!res.seed) {
-				updateInnerBoard(game);
-			} else {
-				console.log(badFlags);
-				endGame(badFlags, res.seed);
-				
-			}
+		if (res.error) {
+			console.log(res.error);
+			return;
+		}
+
+		updateTimer(res.time, res.updated, true);
+
+		const badFlags = game.updateGame(res.changes);
+		if (!res.seed) {
+			updateInnerBoard(game);
+		} else {
+			console.log(badFlags);
+			endGame(badFlags, res.seed);
 		}
 		// manageCalls(item);
 	}
@@ -718,6 +745,9 @@ async function rClickGrid(event) {
 	if (game.getFlagsRemaining() && item.isCovered() && !item.isFlagged()) {
 		const res = await socket.emitWithAck("flag", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
 		if (res.error) return;
+
+		updateTimer(res.time, res.updated, true);
+		
 		this.classList.add("flagged");
 		item.setFlag();
 		this.innerHTML = symbols[10];
@@ -728,6 +758,9 @@ async function rClickGrid(event) {
 	} else if (item.isFlagged()) {
 		const res = await socket.emitWithAck("unflag", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
 		if (res.error) return;
+
+		updateTimer(res.time, res.updated, true);
+
 		this.classList.remove("flagged");
 		item.clearFlag();
 		this.innerHTML = symbols[11];

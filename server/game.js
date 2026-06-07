@@ -24,6 +24,8 @@ export class Game {
 		this.validRemaining = 0;
 		/** @type {Boolean} Whether or not the game is paused */
 		this.paused = false;
+		/** @type {Boolean} Whether or not the game is over */
+		this.over = false;
 		/** @type {Boolean} Whether or not the game has started */
 		this.isStarted = false;
 		/** @type {Array<Number>} A list of all start/pause times to calculate total time passed */
@@ -83,6 +85,27 @@ export class Game {
 	}
 
 	/**
+	 * Gets how long the user took to finish the game.
+	 * @returns {Number} The time the user took to complete the game.
+	 */
+	getTime() {
+		return this.time;
+	}
+
+	/**
+	 * Calculates how long the current game has been running.
+	 */
+	calculateTime() {
+		this.time = 0;
+		for (let i = 1; i < this.timeEvents.length; i+=2) {
+			this.time += this.timeEvents[i] - this.timeEvents[i-1];
+		}
+		if (this.timeEvents.length % 2) {
+			this.time += Date.now() - this.timeEvents[this.timeEvents.length-1];
+		}
+	}
+
+	/**
 	 * Get the number of flags left to use.
 	 * @returns {Number} The number of flags the user has remaining.
 	 */
@@ -136,6 +159,51 @@ export class Game {
 	}
 
 	/**
+	 * @typedef {Object} gridData
+	 * @property {Number} val The value of the current square.
+	 * @property {Number} i The x-coordinate of the current square.
+	 * @property {Number} j The y-coordinate of the current square.
+	 */
+
+	/**
+	 * Gets the list of changes to sync with the client.
+	 * @returns {Array<gridData>} The list of changes to sync with the client.
+	 */
+	getChanges() {
+		return this.changes;
+	}
+
+	/**
+	 * Adds a change to sync with the client.
+	 * @param {gridData} change 
+	 */
+	addChange(change) {
+		this.changes.push(change);
+	}
+
+	/**
+	 * Clears the list of changes to sync with the client.
+	 */
+	clearChanges() {
+		this.changes = [];
+	}
+
+	/**
+	 * Indicates whether the current game is finished.
+	 * @returns {Boolean} true if the game is finished; false otherwise.
+	 */
+	isOver() {
+		return this.over;
+	}
+
+	/**
+	 * Marks the current game as finished.
+	 */
+	setOver() {
+		this.over = true;
+	}
+
+	/**
 	 * Indicates whether the current game is paused.
 	 * @returns {Boolean} true if the game is paused; false otherwise.
 	 */
@@ -160,7 +228,7 @@ export class Game {
 		for (let i = 0; i < this.size; i++) {
 			for (let j = 0; j < this.size; j++) {
 				const square = this.getItem(i, j);
-				this.changes.push({val: square.isFlagged() ? 10 : square.isCovered() ? 11 : square.getValue(), i, j});
+				addChange({val: square.isFlagged() ? 10 : square.isCovered() ? 11 : square.getValue(), i, j});
 			}
 		}
 	}
@@ -257,9 +325,7 @@ export class Game {
 	 * @param {GridItem} item The grid item that was clicked.
 	 */
 	clickGridItem(item) {
-		console.log("Uncovering:", item.getCoords());
 		if (!item) return;
-		console.log(item.isMine());
 		if (item.isMine()) {
 			return this.endGame();
 		}
@@ -270,8 +336,7 @@ export class Game {
 			const [i, j] = currentItem.getCoords();
 			console.log(i, j);
 			currentItem.clearCover();
-			this.changes.push({val: currentItem.getValue(), i: currentItem.getCoords()[0], j: currentItem.getCoords()[1]});
-			console.log(this.changes);
+			addChange({val: currentItem.getValue(), i: currentItem.getCoords()[0], j: currentItem.getCoords()[1]});
 			if (!currentItem.getValue()) {
 				for (let di = -1; di < 2; di++) {
 					for (let dj = -1; dj < 2; dj++) {
@@ -300,20 +365,35 @@ export class Game {
 				break;
 			}
 		}
-		if (win) winGame();
+		if (win) return winGame();
 	}
 
+	/**
+	 * Clears all squares to sync with the client and ends the game.
+	 * @returns {String} 'lost' to indicate that the user has lost the game.
+	 */
 	endGame() {
 		for (let i = 0; i < this.getSize(); i++) {
 			for (let j = 0; j < this.getSize(); j++) {
 				const item = this.getItem(i, j);
 				if (!item.isCovered()) continue;
 				item.clearCover();
-				this.changes.push({val: item.getValue(), i: item.getCoords()[0], j: item.getCoords()[1]})
+				addChange({val: item.getValue(), i: item.getCoords()[0], j: item.getCoords()[1]})
 				// if (item.isMine() && !item.isFlagged()) unflagged++;
 			}
 		}
-		return true;
+		this.setOver();
+		return "lost";
+	}
+
+	/**
+	 * Marks the current game as won and calculates the user's total time.
+	 * @returns {String} 'won' to indicate that the user has won the game.
+	 */
+	winGame() {
+		this.calculateTime();
+		this.setOver();
+		return "won";
 	}
 }
 
