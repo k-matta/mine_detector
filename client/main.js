@@ -43,7 +43,7 @@ try {
 	}
 	setupDiscordSdk().then((code) => {
 		document.getElementById("title").hidden = true;
-		document.body.innerHTML += `
+		document.body.innerHTML = `
 		<button type="button" id="over-show">Show</button>
 		<section id="game">
 			<section id="menu">
@@ -51,7 +51,6 @@ try {
 				<menu>
 					<button type="button" id="standard">Start Game!</button>
 					<button type="button" id="custom">Custom Game!</button>
-					<button type="button" id="pvp">Online Game!</button>
 				</menu>
 			</section>
 			<div style="display: none;" id="app">
@@ -85,7 +84,7 @@ try {
 			</form>
 			<section id="over">
 				<button type="button" id="over-hide">Hide</button>
-				<h2>Game<br>Over!</h2>
+				<h2></h2>
 				<p>Seed: <span></span></p>
 				<button type="button" id="return">Return to Menu</button>
 			</section>

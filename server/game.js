@@ -103,6 +103,7 @@ export class Game {
 		if (this.timeEvents.length % 2) {
 			this.time += Date.now() - this.timeEvents[this.timeEvents.length-1];
 		}
+		console.log(`${Math.floor(this.time/60000)}:${Math.round(this.time/1000)%60}`);
 	}
 
 	/**
@@ -216,7 +217,7 @@ export class Game {
 	 */
 	pause() {
 		this.paused = true;
-		this.timeEvents.push(Date.now());
+		if (this.getStarted()) this.timeEvents.push(Date.now());
 	}
 
 	/**
@@ -224,11 +225,11 @@ export class Game {
 	 */
 	resume() {
 		this.paused = false;
-		this.timeEvents.push(Date.now());
+		if (this.getStarted()) this.timeEvents.push(Date.now());
 		for (let i = 0; i < this.size; i++) {
 			for (let j = 0; j < this.size; j++) {
 				const square = this.getItem(i, j);
-				addChange({val: square.isFlagged() ? 10 : square.isCovered() ? 11 : square.getValue(), i, j});
+				this.addChange({val: square.isFlagged() ? 10 : square.isCovered() ? 11 : square.getValue(), i, j});
 			}
 		}
 	}
@@ -336,7 +337,8 @@ export class Game {
 			const [i, j] = currentItem.getCoords();
 			console.log(i, j);
 			currentItem.clearCover();
-			addChange({val: currentItem.getValue(), i: currentItem.getCoords()[0], j: currentItem.getCoords()[1]});
+			this.addChange({val: currentItem.getValue(), i: currentItem.getCoords()[0], j: currentItem.getCoords()[1]});
+			console.log(currentItem);
 			if (!currentItem.getValue()) {
 				for (let di = -1; di < 2; di++) {
 					for (let dj = -1; dj < 2; dj++) {
@@ -365,7 +367,7 @@ export class Game {
 				break;
 			}
 		}
-		if (win) return winGame();
+		if (win) return this.winGame();
 	}
 
 	/**
@@ -378,7 +380,7 @@ export class Game {
 				const item = this.getItem(i, j);
 				if (!item.isCovered()) continue;
 				item.clearCover();
-				addChange({val: item.getValue(), i: item.getCoords()[0], j: item.getCoords()[1]})
+				this.addChange({val: item.getValue(), i: item.getCoords()[0], j: item.getCoords()[1]})
 				// if (item.isMine() && !item.isFlagged()) unflagged++;
 			}
 		}

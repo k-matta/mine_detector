@@ -62,9 +62,11 @@ io.on('connection', (socket) => {
 	// socket.join(socket.handshake.auth.userId);
 	// console.log("Socket joined ", socket.handshake.auth.userId);
 	socket.on("generate", (gameData, callback) => {
-		if (typeof(games[id]) == "Game") {
-			callback({error: "Game already in progress."});
-			return;
+		if (typeof(games[id]) == "object") {
+			if (!games[id].isOver()) {
+				callback({error: "Game already in progress."});
+				return;
+			}
 		}
 		let boardSize, mines, seed;
 		try {
@@ -106,8 +108,11 @@ io.on('connection', (socket) => {
 		if (!games[id].getStarted()) games[id].start();
 		const gameStatus = games[id].clickGridItem(square);
 		games[id].calculateTime();
-		callback({changes: games[id].getChanges(), seed: gameStatus ? games[id].getSeed() : null, time: games[id].getTime(), updated: Date.now()});
+		callback({changes: games[id].getChanges(), seed: gameStatus ? games[id].getSeed() : null, win: gameStatus == "won", time: games[id].getTime(), updated: Date.now()});
 		games[id].clearChanges();
+		if (gameStatus) {
+			games[id].setOver();
+		}
 	});
 
 	socket.on("flag", (coords, callback) => {
@@ -139,8 +144,14 @@ io.on('connection', (socket) => {
 		}
 		games[id].removeFlag();
 		square.setFlag();
-		games[id].calculateTime();
-		callback({flags: games[id].getFlagsRemaining(), time: games[id].getTime(), updated: Date.now()});
+		let win = false;
+		if (!games[id].getValidRemaining() && !games[id].getFlagsRemaining()) {
+			games[id].winGame();
+			win = true;
+		} else {
+			games[id].calculateTime();
+		}
+		callback({flags: games[id].getFlagsRemaining(), time: games[id].getTime(), updated: Date.now(), win, seed: games[id].getSeed()});
 	});
 
 	socket.on("unflag", (coords, callback) => {
@@ -177,7 +188,7 @@ io.on('connection', (socket) => {
 		}
 		games[id].pause();
 		games[id].calculateTime();
-		callback({success: "Game Paused.", time: games[id].getTime(), updated: Date.now()});
+		callback({success: "Game Paused.", time: games[id].getTime(), updated: games[id].timeEvents[games[id].timeEvents.length-1]});
 	});
 
 	socket.on("play", (callback) => {

@@ -22,6 +22,23 @@ class Game {
 		this.changes = [];
 		/** @type {Boolean} Whether or not the game is paused */
 		this.paused = false;
+		/** @type {Boolean} Whether or not the game has started */
+		this.isStarted = false;
+	}
+
+	/**
+	 * Start the game timer.
+	 */
+	start() {
+		this.isStarted = true;
+	}
+
+	/**
+	 * Indicates whether or not the game has been started.
+	 * @return {Boolean} true if the game has been started; false otherwise.
+	 */
+	getStarted() {
+		return this.isStarted;
 	}
 
 	/**
@@ -214,6 +231,18 @@ class Game {
 		this.setFlagsRemaining(this.getFlagsRemaining() + flagChange);
 		return badFlags;
 	}
+
+	/**
+	 * Reset the game's data.
+	 */
+	reset() {
+		this.size = 0;
+		this.board = [];
+		this.flagsRemaining = 0;
+		this.changes = [];
+		this.paused = false;
+		this.isStarted = false;
+	}
 }
 
 /**
@@ -377,8 +406,11 @@ function tempTimer() {
 function updateTimer(gameTime, updated, clearPrevious) {
 	const currentTime = Date.now();
 	const totalTime = gameTime + currentTime - updated;
-	let sec = Math.round(totalTime/1000) % 60;
-	let min = Math.round(totalTime/60000);
+	let sec = Math.floor(totalTime/1000) % 60;
+	if (sec < 10) {
+		sec = `0${sec}`;
+	}
+	let min = Math.floor(totalTime/60000);
 	if (clearPrevious) clearInterval(timerId);
 	time.innerText = `${min}:${sec}`;
 	const offset = totalTime % 1000;
@@ -390,9 +422,20 @@ async function startGame(boardSize, mines, seed="") {
 	const res = await socket.emitWithAck("generate", {boardSize, mines, seed});
 	console.log(JSON.stringify(res));
 	if (res.error) {
-		parameterError();
+		console.log(res.error)
+		const err = document.createElement("p");
+		err.id = 'err';
+		err.style.margin = '20px';
+		err.style.padding = '10px';
+		err.style.backgroundColor = '#500';
+		err.style.borderRadius = '5px';
+		err.style.fontSize = '0.5em';
+		err.innerText = "Uh oh! Looks like you tried to enter invalid parameters! Please do not attempt to modify the form.";
+		document.getElementById("game").inserBefore(document.getElementById("c-form"), err);
 		return;
-	}
+	} try {
+		document.removeElement(document.getElementById("err"));
+	} catch {}
 	console.log("Response:", JSON.stringify(res));
 	game.generateGameBoard(res);
 	home.style.display = "none";
@@ -431,7 +474,12 @@ function createInnerBoard(game) {
 		outerBoard.id = "board-container";
 		app.appendChild(outerBoard);
 	}
-	const innerBoard = document.createElement("div");
+	let innerBoard = document.getElementById("main-board");
+	if (!innerBoard) {
+		innerBoard = document.createElement("div");
+		innerBoard.id = "main-board";
+		outerBoard.appendChild(innerBoard)
+	}
 	innerBoard.id = "main-board";
 	outerBoard.appendChild(innerBoard)
 	for (let i = 0; i < game.getSize(); i++) {
@@ -466,14 +514,20 @@ function updateInnerBoard(game) {
 	outerBoard.appendChild(innerBoard)
 	for (let change of game.getChanges()) {
 		const gridItem = document.getElementById(`${change.getCoords()[0]}-${change.getCoords()[1]}`);
-		if (!change.isCovered()) {
-			gridItem.removeEventListener('click', clickGrid);
-			gridItem.removeEventListener('contextmenu', rClickGrid);
-			gridItem.classList.remove('covered');
+		console.log(gridItem);
+		try {
+			if (!change.isCovered()) {
+				gridItem.removeEventListener('click', clickGrid);
+				gridItem.removeEventListener('contextmenu', rClickGrid);
+				gridItem.classList.remove('covered');
+			}
+		} catch (e) {
+			console.log(e);
 		}
 		gridItem.innerHTML = symbols[change.getValue()];
 	}
 	flagIndicator.innerText = game.getFlagsRemaining();
+	game.clearChanges();
 }
 
 /**
@@ -581,12 +635,12 @@ function endGame(badFlags, seed) {
 			}
 		}
 	}
-	overScreen.children[1].innerHTML = "Game Over!"
+	overScreen.children[1].innerText = "Game Over!"
 	overScreen.children[2].innerHTML = `You had ${unflagged} ${unflagged == 1 ? "mine" : "mines"} remaining!<br>${overScreen.children[2].innerHTML}`;
 	gameOver(seed);
 }
 
-function winGame() {
+function winGame(gameTime, seed) {
 	for (let i = 0; i < game.getSize(); i++) {
 		for (let j = 0; j < game.getSize(); j++) {
 			const item = game.getItem(i, j);
@@ -596,16 +650,16 @@ function winGame() {
 			itemHTML.removeEventListener("contextmenu", rClickGrid);
 		}
 	}
-	const time = 0;
-	overScreen.children[1].innterHTML = "You Win!";
-	overScreen.children[2].innerHTML = `Your time: ${time*1000} seconds.<br>${overScreen.children[2].innerHTML}`;
-	gameOver();
+	overScreen.children[1].innterText = "You Win!";
+	overScreen.children[2].innerHTML = `Your time: ${gameTime/1000} seconds.<br>${overScreen.children[2].innerHTML}`;
+	gameOver(seed);
 }
 
 function gameOver(seed) {
 	overScreen.children[2].children[1].innerText = seed;
 	overScreen.style.display = "block";
-	game.setFlagsRemaining(0);
+	game.reset();
+	flagIndicator.style.backgroundColor = "#4a4a4a";
 	clearInterval(timerId);
 }
 
@@ -680,10 +734,14 @@ pause.addEventListener("click", async () => {
 	const currentTime = Date.now();
 	clearInterval(timerId);
 	game.pause();
-	const totalTime = res.time + currentTime - res.updated;
-	let sec = Math.round(totalTime/1000) % 60;
-	let min = Math.round(totalTime/60000);
-	time.innerText = `${min}:${sec}`;
+	if (game.getStarted()) {
+		let sec = Math.floor(res.time/1000) % 60;
+		if (sec < 10) {
+			sec = `0${sec}`;
+		}
+		let min = Math.floor(res.time/60000);
+		time.innerText = `${min}:${sec}`;
+	}
 	
 	document.getElementById("board-container").removeChild(document.getElementById("main-board"));
 	pause.style.display = "none";
@@ -697,7 +755,9 @@ play.addEventListener("click", async () => {
 		console.log(res.error);
 		return;
 	}
-	updateTimer(res.time, res.updated, false);
+	if (game.getStarted()) {
+		updateTimer(res.time, res.updated, false);
+	}
 
 	game.resume(res.changes);
 	createInnerBoard(game);
@@ -727,10 +787,12 @@ async function clickGrid() {
 		}
 
 		updateTimer(res.time, res.updated, true);
-
+		game.start();
 		const badFlags = game.updateGame(res.changes);
 		if (!res.seed) {
 			updateInnerBoard(game);
+		} else if (res.win) {
+			winGame(res.time, res.seed);
 		} else {
 			console.log(badFlags);
 			endGame(badFlags, res.seed);
@@ -754,6 +816,9 @@ async function rClickGrid(event) {
 		game.setFlagsRemaining(res.flags);
 		if (!game.getFlagsRemaining()) {
 			flagIndicator.style.backgroundColor = "#AA0000";
+		}
+		if (res.win) {
+			winGame(res.time, res.seed);
 		}
 	} else if (item.isFlagged()) {
 		const res = await socket.emitWithAck("unflag", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
