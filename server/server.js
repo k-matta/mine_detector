@@ -1,21 +1,14 @@
 import express from "express";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
-// import { setTimeout } from "timers/promises";
-// import { body } from "express-validator";
 import * as path from 'path';
 import { fileURLToPath } from 'url';
-// import { type } from 'node:os';
-// import { Cache, foodCache } from './classes_and_functions/cache.js';
-// import { validationCheck } from './classes_and_functions/functions.js';
-// import { makeNonceCode, loggedIn, sesionUpdate } from './classes_and_functions/sesions.js';
-// import sesionHandler from './middleware/sesionHandler.js';
-// import cookieParser from "cookie-parser";
 import cors from "cors";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
-var crypto = await import("node:crypto");
-import { Game, GridItem} from "./game.js";
+import { Game } from "./game.js";
+import * as gameSocket from "./websockets.js";
+import { createClient } from "@supabase/supabase-js";
 dotenv.config({ path: ["../.env", "/etc/secrets/.env"] });
 
 const app = express();
@@ -32,12 +25,9 @@ app.set('view engine', 'pug');
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ extended: true }));
-// app.use((req, res, next) => {
-// 	console.log(req.url);
-// 	next();
-// });
 app.disable("x-powered-by");
 app.use(cors(corsOptions));
+
 const server = createServer(app);
 const io = new Server(server, {
 	cors: {
@@ -58,156 +48,34 @@ const games = {};
 // Setup:
 io.on('connection', (socket) => {
 	const id = socket.handshake.auth.userId;
-	console.log("New connection: " , socket.handshake.auth.userId);
-	// socket.join(socket.handshake.auth.userId);
-	// console.log("Socket joined ", socket.handshake.auth.userId);
+
 	socket.on("generate", (gameData, callback) => {
-		if (typeof(games[id]) == "object") {
-			if (!games[id].isOver()) {
-				callback({error: "Game already in progress."});
-				return;
-			}
-		}
-		let boardSize, mines, seed;
-		try {
-			({boardSize, mines, seed} = gameData);
-		} catch(e) {
-			callback({error: "Invalid parameters"});
-		}
-		if (typeof(boardSize) != "number" || typeof(mines) != "number" || (typeof(seed) != "number" && seed)) callback({error: "Invalid parameters"});
-		try {
-			games[`${id}`] = new Game();
-			console.log(typeof(games[id]));
-			games[`${id}`].generateGameBoard(boardSize, mines, seed);
-		} catch(err) {
-			console.log(err);
-			callback({error: "Invalid parameters"});
-			return;
-		}
-		callback({id, size: games[id].getSize(), flags: games[id].getFlagsRemaining()});
-		console.log("Board created");
-	});
+		gameSocket.generateHandler(games, gameData, callback);
 
-	socket.on("uncover", (coords, callback) => {
-		if (games[id].isOver()) {
-			callback({error: "Game cannot be modified if game is over."});
-			return;
-		}
-		if (games[id].isPaused()) {
-			callback({error: "No actions allowed while game is paused."});
-			return;
-		}
-		const square = games[id].getItem(...coords);
-		if (!square) {
-			callback({error: "Invalid coordinates"});
-			return;
-		} if (square.isFlagged() || !square.isCovered()) {
-			callback({error: "Square connot be uncovered"});
-			return;
-		}
-		if (!games[id].getStarted()) games[id].start();
-		const gameStatus = games[id].clickGridItem(square);
-		games[id].calculateTime();
-		callback({changes: games[id].getChanges(), seed: gameStatus ? games[id].getSeed() : null, win: gameStatus == "won", time: games[id].getTime(), updated: Date.now()});
-		games[id].clearChanges();
-		if (gameStatus) {
-			games[id].setOver();
-		}
-	});
+		socket.on("uncover", (coords, callback) => {
+			gameSocket.uncoverHandler(games[id], coords, callback);
+		});
 
-	socket.on("flag", (coords, callback) => {
-		if (games[id].isOver()) {
-			callback({error: "Game cannot be modified if game is over."});
-			return;
-		}
-		if (games[id].isPaused()) {
-			callback({error: "No actions allowed while game is paused."});
-			return;
-		} if (!games[id].getFlagsRemaining()) {
-			callback({error: "No flags left to use"})
-		}
-		if (coords.length > 2 || coords.length < 2) {
-			callback({error: "Invalid parameters."});
-			return;
-		}
-		if (typeof(coords[0]) != "number" || typeof(coords[1]) != "number") {
-			callback({error: "Invalid parameters"});
-			return;
-		}
-		const square = games[id].getItem(...coords);
-		if (!square) {
-			callback({error: "Invalid coordinates"});
-			return;
-		} if (square.isFlagged() || !square.isCovered()) {
-			callback({error: "Square connot be flagged"});
-			return;
-		}
-		games[id].removeFlag();
-		square.setFlag();
-		let win = false;
-		if (!games[id].getValidRemaining() && !games[id].getFlagsRemaining()) {
-			games[id].winGame();
-			win = true;
-		} else {
-			games[id].calculateTime();
-		}
-		callback({flags: games[id].getFlagsRemaining(), time: games[id].getTime(), updated: Date.now(), win, seed: games[id].getSeed()});
-	});
+		socket.on("flag", (coords, callback) => {
+			gameSocket.flagHandler(games[id], coords, callback);
+		});
 
-	socket.on("unflag", (coords, callback) => {
-		if (games[id].isOver()) {
-			callback({error: "Game cannot be modified if game is over."});
-			return;
-		}
-		if (games[id].isPaused()) {
-			callback({error: "No actions allowed while game is paused."});
-			return;
-		}
-		const square = games[id].getItem(...coords);
-		if (!square) {
-			callback({error: "Invalid coordinates"});
-			return;
-		} if (!square.isFlagged()) {
-			callback({error: "Square connot be unflagged"});
-			return;
-		}
-		games[id].addFlag();
-		square.clearFlag();
-		games[id].calculateTime();
-		callback({flags: games[id].getFlagsRemaining(), time: games[id].getTime(), updated: Date.now()});
-	});
+		socket.on("unflag", (coords, callback) => {
+			gameSocket.unflagHandler(games[id], coords, callback);
+		});
 
-	socket.on("pause", (callback) => {
-		if (games[id].isOver()) {
-			callback({error: "Game cannot be modified if game is over."});
-			return;
-		}
-		if (games[id].isPaused()) {
-			callback({error: "Game is already paused."});
-			return;
-		}
-		games[id].pause();
-		games[id].calculateTime();
-		callback({success: "Game Paused.", time: games[id].getTime(), updated: games[id].timeEvents[games[id].timeEvents.length-1]});
-	});
+		socket.on("pause", (callback) => {
+			gameSocket.pauseHandler(games[id], callback);
+		});
 
-	socket.on("play", (callback) => {
-		if (games[id].isOver()) {
-			callback({error: "Game cannot be modified if game is over."});
-			return;
-		}
-		if (!games[id].isPaused()) {
-			callback({error: "Game is not paused."});
-			return;
-		}
-		games[id].resume();
-		games[id].calculateTime();
-		callback({changes: games[id].getChanges(), flags: games[id].getFlagsRemaining(), time: games[id].getTime(), updated: Date.now()});
-		games[id].clearChanges();
-	});
+		socket.on("play", (callback) => {
+			gameSocket.playHandler(games[id], callback);
+		});
 
-	socket.on("disconnect", () => {
-		delete games[id];
+		socket.on("disconnect", () => {
+			delete games[id];
+		});
+	
 	});
 });
 
