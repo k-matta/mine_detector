@@ -1,10 +1,9 @@
-// import './style.css'
-// import rocketLogo from '/rocket.png'
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 try {
 	let auth;
 	const discordSdk = new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
-	
+
+	// Authenticate with Discord SDK.
 	async function setupDiscordSdk() {
 		await discordSdk.ready();
 		const { code } = await discordSdk.commands.authorize({
@@ -28,20 +27,19 @@ try {
 			})
 		});
 		
-		const json = await response.json();
-		// const { access_token } = await response.json();
-		const access_token = json.access_token;
+		const { access_token } = await response.json();
 		auth = await discordSdk.commands.authenticate({
 			access_token
 		});
 		
+		// If authentication fails
 		if (auth == null) {
 			throw new Error("Authenticate command failed");
 		}
-		console.log(code)
 		return code;
 	}
 	setupDiscordSdk().then((code) => {
+		// Set up game menus.
 		document.getElementById("title").hidden = true;
 		document.body.innerHTML = `
 		<button type="button" id="over-show">Show</button>
@@ -90,12 +88,16 @@ try {
 			</section>
 		</section>
 		<div id="code" hidden>${code}</div>`
+		// Use code in websocket connection to ensure client is legitimate.
+
+		// Inject game script into HTML.
 		const script = document.createElement("script");
 		script.src = "/assets/game.js";
 		script.type = "module";
 		document.body.appendChild(script);
 	});
 } catch(e) {
+	// Display error if authentication fails.
 	console.log(e)
 	document.body.innerHTML += "<p style='margin:20px; padding: 10px; background-color: #500; border-radius: 5px; font-size: 0.5em;'>Uh oh! There was an error authenticating this client. Please close and reopen the game to try again.<br>If the problem persists, please contact support.</p>";
 }

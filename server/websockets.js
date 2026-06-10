@@ -55,6 +55,8 @@ export function generateHandler(games, gameData, callback) {
  * @returns {void}
  */
 export function uncoverHandler(game, coords, callback) {
+
+	// Make sure action is valid.
 	if (game.isOver()) {
 		callback({error: "Game cannot be modified if game is over."});
 		return;
@@ -63,6 +65,8 @@ export function uncoverHandler(game, coords, callback) {
 		callback({error: "No actions allowed while game is paused."});
 		return;
 	}
+
+	// Make sure coordinates are valid.
 	if (coords.length > 2 || coords.length < 2) {
 		callback({error: "Invalid parameters."});
 		return;
@@ -75,14 +79,27 @@ export function uncoverHandler(game, coords, callback) {
 	if (!square) {
 		callback({error: "Invalid coordinates"});
 		return;
-	} if (square.isFlagged() || !square.isCovered()) {
+	}
+
+	// Make sure the square can be uncovered.
+	if (square.isFlagged() || !square.isCovered()) {
 		callback({error: "Square connot be uncovered"});
 		return;
 	}
+
+	// If this is the first click of the game, start the timer.
 	if (!game.getStarted()) game.start();
+
+	// Check if the user lost the game.
 	const gameStatus = game.clickGridItem(square);
+
+	// Calculate the time since the game started to sync the client timer.
 	game.calculateTime();
+
+	// Send changes to the client.
 	callback({changes: game.getChanges(), seed: gameStatus ? game.getSeed() : null, win: gameStatus == "won", time: game.getTime(), updated: Date.now()});
+	
+	// Clear list of changes and end the game if necessary.
 	game.clearChanges();
 	if (gameStatus) {
 		game.setOver();
@@ -97,6 +114,8 @@ export function uncoverHandler(game, coords, callback) {
  * @returns {void}
  */
 export function flagHandler(game, coords, callback) {
+
+	// Make sure action is valid.
 	if (game.isOver()) {
 		callback({error: "Game cannot be modified if game is over."});
 		return;
@@ -107,6 +126,8 @@ export function flagHandler(game, coords, callback) {
 	} if (!game.getFlagsRemaining()) {
 		callback({error: "No flags left to use"})
 	}
+
+	// Make sure coordinates are valid.
 	if (coords.length > 2 || coords.length < 2) {
 		callback({error: "Invalid parameters."});
 		return;
@@ -119,19 +140,28 @@ export function flagHandler(game, coords, callback) {
 	if (!square) {
 		callback({error: "Invalid coordinates"});
 		return;
-	} if (square.isFlagged() || !square.isCovered()) {
+	}
+	
+	// Make sure the square can be flagged.
+	if (square.isFlagged() || !square.isCovered()) {
 		callback({error: "Square connot be flagged"});
 		return;
 	}
+
+	// Flag the square.
 	game.removeFlag();
 	square.setFlag();
 	let win = false;
+
+	// Check if the user has won and calculate elapsed time to sync the client.
 	if (!game.getValidRemaining() && !game.getFlagsRemaining()) {
 		game.winGame();
 		win = true;
 	} else {
 		game.calculateTime();
 	}
+
+	// Send changes to the client.
 	callback({flags: game.getFlagsRemaining(), time: game.getTime(), updated: Date.now(), win, seed: game.getSeed()});
 }
 
@@ -143,6 +173,8 @@ export function flagHandler(game, coords, callback) {
  * @returns {void}
  */
 export function unflagHandler(game, coords, callback) {
+
+	// Make sure action is valid.
 	if (game.isOver()) {
 		callback({error: "Game cannot be modified if game is over."});
 		return;
@@ -151,17 +183,34 @@ export function unflagHandler(game, coords, callback) {
 		callback({error: "No actions allowed while game is paused."});
 		return;
 	}
+
+	// Make sure coordinates are valid.
+	if (coords.length > 2 || coords.length < 2) {
+		callback({error: "Invalid parameters."});
+		return;
+	}
+	if (typeof(coords[0]) != "number" || typeof(coords[1]) != "number") {
+		callback({error: "Invalid parameters"});
+		return;
+	}
 	const square = game.getItem(...coords);
 	if (!square) {
 		callback({error: "Invalid coordinates"});
 		return;
-	} if (!square.isFlagged()) {
+	}
+
+	// Make sure the square can be flagged.
+	if (!square.isFlagged()) {
 		callback({error: "Square connot be unflagged"});
 		return;
 	}
+
+	// Remove the flag and calculate elapsed time.
 	game.addFlag();
 	square.clearFlag();
 	game.calculateTime();
+
+	// Send changes to the client.
 	callback({flags: game.getFlagsRemaining(), time: game.getTime(), updated: Date.now()});
 }
 
@@ -172,6 +221,8 @@ export function unflagHandler(game, coords, callback) {
  * @returns {void}
  */
 export function pauseHandler(game, callback) {
+
+	// Make sure the action is valid.
 	if (game.isOver()) {
 		callback({error: "Game cannot be modified if game is over."});
 		return;
@@ -180,8 +231,12 @@ export function pauseHandler(game, callback) {
 		callback({error: "Game is already paused."});
 		return;
 	}
+
+	// Pause the game and calculate elapsed time.
 	game.pause();
 	game.calculateTime();
+
+	// Send changes to the client.
 	callback({success: "Game Paused.", time: game.getTime(), updated: game.timeEvents[game.timeEvents.length-1]});
 }
 
@@ -192,6 +247,8 @@ export function pauseHandler(game, callback) {
  * @returns {void}
  */
 export function playHandler(game, callback) {
+
+	// Make sure the action is valid.
 	if (game.isOver()) {
 		callback({error: "Game cannot be modified if game is over."});
 		return;
@@ -200,8 +257,14 @@ export function playHandler(game, callback) {
 		callback({error: "Game is not paused."});
 		return;
 	}
+
+	// Resume the game and calculate the elapsed time.
 	game.resume();
 	game.calculateTime();
+
+	// Send the board to the client
 	callback({changes: game.getChanges(), flags: game.getFlagsRemaining(), time: game.getTime(), updated: Date.now()});
+
+	// Clear the changes array.
 	game.clearChanges();
 }

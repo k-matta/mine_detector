@@ -1,10 +1,10 @@
 import { io } from "socket.io-client";
 
+// Get client code
 let codeElement = document.getElementById("code");
 const code = codeElement.innerText;
 document.body.removeChild(codeElement);
 codeElement = null;
-console.log("CODE:", code);
 
 /**
  * The main Mine-Detector Game object.
@@ -213,21 +213,31 @@ class Game {
 	/**
 	 * Updates the current game board and the state of the game (win/lose)
 	 * @param {updateData} gameData The data needed to update the game board.
-	 * @returns {Array<Array<Number>> | null} An array of coordinate arrays if game lost; null otherwise.
+	 * @returns {Array<Array<Number>> | Array<null>} An array of coordinate arrays if game lost; null otherwise.
 	 */
 	updateGame(gameData) {
 		const badFlags = [];
 		let flagChange = 0;
+
 		for (let i = 0; i < gameData.length; i++) {
 			const square = gameData[i];
+			// Generate square based on returned data
 			const newItem = new GridItem(square.i, square.j, square.val);
 			this.addChange(newItem);
-			const oldItem = this.getItem(square.i, square.j)
+			const oldItem = this.getItem(square.i, square.j);
+
+			// COmpare previous state of square to determine what changed.
 			oldItem.isFlagged() && !newItem.isFlagged() ? flagChange++ : !this.getItem(square.i, square.j).isFlagged() && newItem.isFlagged() ? flagChange-- : flagChange = flagChange;
+			
+			// If the game finished and an item was incorrectly flagged, record it
 			if (newItem.isMine() && !oldItem.isFlagged()) badFlags.push(newItem.getCoords());
 			if (!newItem.isMine() && oldItem.isFlagged()) badFlags.push(newItem.getCoords());
+			
+			// Set the new item on the board.
 			this.setItem(newItem);
 		}
+
+		// Set the number of flags left.
 		this.setFlagsRemaining(this.getFlagsRemaining() + flagChange);
 		return badFlags;
 	}
@@ -345,6 +355,7 @@ class GridItem {
 	}
 }
 
+// Create websocket conneciton.
 const socket = io(import.meta.env.VITE_SERVER_URL, {
 	auth: {userId: code},
 	path: "/socket/"
@@ -364,7 +375,7 @@ const sizeDisplay = document.getElementById("size-display");
 const mines = document.getElementById("mines");
 const minesDisplay = document.getElementById("mines-display");
 const custom = document.getElementById("custom");
-const online = document.getElementById("pvp");
+// const online = document.getElementById("pvp");
 const hideOver = document.getElementById("over-hide");
 const showOver = document.getElementById("over-show");
 const time = document.getElementById("time");
@@ -373,10 +384,15 @@ const pause = document.getElementById("pause");
 const play = document.getElementById("play");
 const symbols = ["⬜","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","💣", "🚩", "🟦"];
 
+// Create a game object for the client.
 const game = new Game();
 
+// The ID for the client-side clock.
 let timerId = 0;
 
+/**
+ * Updates the on-screen timer once per second.
+ */
 function mainTimer() {
 	let [min, sec] = time.innerText.split(":").map((a) => Number(a));
 	sec++;
@@ -389,6 +405,9 @@ function mainTimer() {
 	time.innerText = `${min}:${sec}`;
 }
 
+/**
+ * Updates the on-screen clock just once to account for an offset that is less than one second.
+ */
 function tempTimer() {
 	let [min, sec] = time.innerText.split(":").map((a) => Number(a));
 	sec++;
@@ -403,24 +422,46 @@ function tempTimer() {
 	timerId = setInterval(mainTimer, 1000);
 }
 
+/**
+ * Updates the on-screen timer after syncing with the server.
+ * @param {Number} gameTime The time elapsed according to the server.
+ * @param {Number} updated The timestamp at which the server time was calculated.
+ * @param {Boolean} clearPrevious Whether or not to clear the previous timer function.
+ */
 function updateTimer(gameTime, updated, clearPrevious) {
+
+	// Calculate total time, accounting for network delay.
 	const currentTime = Date.now();
 	const totalTime = gameTime + currentTime - updated;
+
+	// Creating the string to display.
 	let sec = Math.floor(totalTime/1000) % 60;
 	if (sec < 10) {
 		sec = `0${sec}`;
 	}
 	let min = Math.floor(totalTime/60000);
+
+	// Clear previous timer if necessary.
 	if (clearPrevious) clearInterval(timerId);
 	time.innerText = `${min}:${sec}`;
+
+	// Set the temporary correction timer to run to keep the client and server times synced.
 	const offset = totalTime % 1000;
 	timerId = setInterval(tempTimer, 1000-offset);
 }
 
+/**
+ * Sends a start request to the server and generates the client-side game.
+ * @param {Number} boardSize The siize of the game board.
+ * @param {Number} mines The number of mines on the board.
+ * @param {Number} seed The game seed.
+ * @returns 
+ */
 async function startGame(boardSize, mines, seed="") {
-	console.log(boardSize, mines, seed, typeof(seed));
+	// Tell the server to start a game.
 	const res = await socket.emitWithAck("generate", {boardSize, mines, seed});
-	console.log(JSON.stringify(res));
+	
+	// DIsplay an error message if necessary.
 	if (res.error) {
 		console.log(res.error)
 		const err = document.createElement("p");
@@ -431,36 +472,40 @@ async function startGame(boardSize, mines, seed="") {
 		err.style.borderRadius = '5px';
 		err.style.fontSize = '0.5em';
 		err.innerText = "Uh oh! Looks like you tried to enter invalid parameters! Please do not attempt to modify the form.";
-		document.getElementById("game").inserBefore(document.getElementById("c-form"), err);
+		gameDisplay.inserBefore(document.getElementById("c-form"), err);
 		return;
-	} try {
+	}
+	
+	// If successful, remove previous error messages.
+	try {
 		document.removeElement(document.getElementById("err"));
 	} catch {}
-	console.log("Response:", JSON.stringify(res));
+
+	// Generate and display the client board.
 	game.generateGameBoard(res);
 	home.style.display = "none";
 	app.style.display = "block";
 	createInnerBoard(game);
 	flagIndicator.innerText = res.flags;
 
-	// Force board styles for pausing
+	// Force board styles for pausing the game.
 	const style = window.getComputedStyle(document.getElementById("board-container"));
-	// Width
+	// Force width
 	const wap = parseFloat(style.width);
 	const paddingLeft = parseFloat(style.paddingLeft);
 	const paddingRight = parseFloat(style.paddingRight);
 	const width = wap - paddingLeft - paddingRight;
-	// Height
+	// Force height
 	const hap = parseFloat(style.height);
 	const paddingTop = parseFloat(style.paddingTop);
 	const paddingBottom = parseFloat(style.paddingBottom);
 	const height = hap - paddingTop - paddingBottom;
-	//Force Styles
+	// Set styles
 	document.getElementById("board-container").style.width = String(width) + "px";
 	document.getElementById("board-container").style.height = String(height) + "px";
 
+	// Set the timer but do not start it until the user clicks a square.
 	time.innerText = "0:00";
-	timerId = setInterval(mainTimer, 1000);
 }
 
 /**
@@ -468,27 +513,33 @@ async function startGame(boardSize, mines, seed="") {
  * @param {Game} game The current game object.
  */
 function createInnerBoard(game) {
+	// Get the outer board. If it doesn't exist, create one.
 	let outerBoard = document.getElementById("board-container");
 	if (!outerBoard) {
 		outerBoard = document.createElement("section");
 		outerBoard.id = "board-container";
 		app.appendChild(outerBoard);
 	}
+
+	// Get the inner board. If it doesn't exist, create one.
 	let innerBoard = document.getElementById("main-board");
 	if (!innerBoard) {
 		innerBoard = document.createElement("div");
 		innerBoard.id = "main-board";
-		outerBoard.appendChild(innerBoard)
 	}
-	innerBoard.id = "main-board";
-	outerBoard.appendChild(innerBoard)
+	outerBoard.appendChild(innerBoard);
+
+	// Create the HTML board elements 
 	for (let i = 0; i < game.getSize(); i++) {
-		console.log("running loop")
+		// Create board rows
 		const row = document.createElement("div");
 		row.classList.add('row');
 		for (let j = 0; j < game.getSize(); j++) {
+			// Create squares within each row
 			const gridItem = document.createElement("div");
 			gridItem.classList.add("grid");
+
+			// Set each square to uncovered, covered, or flagged based on game data.
 			if (game.getItem(i, j).isFlagged() || game.getItem(i, j).isCovered()) {
 				gridItem.addEventListener('click', clickGrid);
 				gridItem.addEventListener('contextmenu', rClickGrid);
@@ -500,6 +551,8 @@ function createInnerBoard(game) {
 		}
 		innerBoard.appendChild(row);
 	}
+
+	// Set the number of remaining flags
 	flagIndicator.innerText = game.getFlagsRemaining();
 }
 
@@ -508,14 +561,23 @@ function createInnerBoard(game) {
  * @param {Game} game The current game object.
  */
 function updateInnerBoard(game) {
+	// Get the outerboard 
 	let outerBoard = document.getElementById("board-container");
-	const innerBoard = document.createElement("div");
-	innerBoard.id = "main-board";
-	outerBoard.appendChild(innerBoard)
+
+	// Get the inner board. If it doesn't exist, create one.
+	let innerBoard = document.getElementById("main-board");
+	if (!innerBoard) {
+		innerBoard = document.createElement("div");
+		innerBoard.id = "main-board";
+	}
+	outerBoard.appendChild(innerBoard);
+
+	// For each change:
 	for (let change of game.getChanges()) {
+		// Get the modified square
 		const gridItem = document.getElementById(`${change.getCoords()[0]}-${change.getCoords()[1]}`);
-		console.log(gridItem);
 		try {
+			// Remove event listeners, if any.
 			if (!change.isCovered()) {
 				gridItem.removeEventListener('click', clickGrid);
 				gridItem.removeEventListener('contextmenu', rClickGrid);
@@ -524,108 +586,33 @@ function updateInnerBoard(game) {
 		} catch (e) {
 			console.log(e);
 		}
+		// Set square value
 		gridItem.innerHTML = symbols[change.getValue()];
 	}
+	// Update the number of available flags.
 	flagIndicator.innerText = game.getFlagsRemaining();
 	game.clearChanges();
 }
 
 /**
- * Generates a game board with a specified size, number of mines, and, optionally, a seed.
- * @param {Number} size X and Y dimension of game board
- * @param {Number} mines The number of mines on the board
- * @param {Number | null} seed Seed the RNG to replay a specific board
- * @returns {null}
+ * Reveals all board items and removes event listeners.
+ * @param {Array<Array<Number>>} badFlags An array of coordinate arrays representing incorrect flgs (or missing flags).
+ * @param {Number} seed The game seed.
  */
-function generateBoard(size, mines, seed = null) {
-	if (!seed) {
-		console.log("Generating Seed");
-		const curDate = new Date();
-		seed = curDate.getTime();
-	}
-	console.log(seed);
-	globalSeed = seed;
-	const rand = mulberry32(seed);
-	const board = [];
-	let bombs = 0;
-	let boardString = "";
-	while (bombs < mines) {
-		for (let i = 0; i < size; i++) {
-			const row = [];
-			for (let j = 0; j < size; j++) {
-				if (bombs == mines) break;
-				try {
-					if (board[i][j] == 9) continue;
-				} catch {}
-
-				const square = new GridItem(i, j, Math.floor(rand()*10));
-				console.log(j, i, bomb, "bomb?", bomb == 9)
-				if (square.isMine()) {
-					bombs++;
-					console.log("Coords: (" + String(j) + ", " + String(i) + ")");
-					console.log(board.length, row.length)
-					console.log(board);
-				}
-				try {
-					console.log(board[i])
-					board[i][j] = square;
-					console.log('Inserted');
-					console.log(board[i])
-				} catch(e) {
-					console.log(e);
-					console.log("Added to row");
-					row.push(square);
-					console.log(row);
-				}
-				console.log("Bombs:", bombs, "\nMines:", mines, "\nExit?", bombs == mines);
-				// boardString += String(bomb) + "\t";
-			}
-			// boardString += "\n";
-			if (board.length == size) continue;
-			board.push(row);
-			console.log("Row was pushed");
-		}
-		// console.log(boardString);
-		boardString = "";
-	}
-	for (let i = 0; i < size; i++) {
-		for (let j = 0; j < size; j++) {
-			let adjacent = 0;
-			if (board[i][j] == 9) continue;
-			// console.log(j, i);
-			for (let di = -1; di < 2; di++) {
-				try {
-					for (let dj = -1; dj < 2; dj++) {
-						if (!dj && !di) continue;
-						try {
-							if (board[i+di][j+dj] == 9) adjacent++;
-						} catch (e) {
-							continue;
-						}
-					}
-				} catch(e) {
-					continue;
-				}
-			}
-			board[i][j].setValue(adjacent);
-			console.log(adjacent);
-		}
-	}
-	return board;
-}
-
 function endGame(badFlags, seed) {
 	let unflagged = 0;
 	for (let i = 0; i < game.getSize(); i++) {
 		for (let j = 0; j < game.getSize(); j++) {
 			const item = game.getItem(i, j);
 			const itemHTML = document.getElementById(`${i}-${j}`);
+			// If still covered, remove event listeners and reveal values.
 			if ((itemHTML.innerText == symbols[10] || itemHTML.innerText == symbols[11])) {
 				itemHTML.removeEventListener("click", clickGrid);
 				itemHTML.removeEventListener("contextmenu", rClickGrid);
 				itemHTML.classList.remove("covered");
-				console.log(item.getValue());
 				itemHTML.innerHTML = symbols[item.getValue()];
+
+				// Highlight incorrect and correct flags.
 				if (badFlags.find((square) => square[0] == i && square[1] == j)) {
 					itemHTML.style.backgroundColor = "red";
 					if (item.isMine()) unflagged++;
@@ -635,42 +622,65 @@ function endGame(badFlags, seed) {
 			}
 		}
 	}
+
+	// Set game over message.
 	overScreen.children[1].innerText = "Game Over!"
 	overScreen.children[2].innerHTML = `You had ${unflagged} ${unflagged == 1 ? "mine" : "mines"} remaining!<br>${overScreen.children[2].innerHTML}`;
 	gameOver(seed);
 }
 
+/**
+ * Cleans up the game board when the user wins.
+ * @param {Number} gameTime The time taken to win the game.
+ * @param {Number} seed The game seed.
+ */
 function winGame(gameTime, seed) {
 	for (let i = 0; i < game.getSize(); i++) {
 		for (let j = 0; j < game.getSize(); j++) {
 			const item = game.getItem(i, j);
+
+			// If the square is flagged, remove event listeners.
 			if (!item.isFlagged()) continue;
 			const itemHTML = document.getElementById(`${i}-${j}`);
 			itemHTML.removeEventListener("click", clickGrid);
 			itemHTML.removeEventListener("contextmenu", rClickGrid);
 		}
 	}
+	// Set game win message.
 	overScreen.children[1].innterText = "You Win!";
 	overScreen.children[2].innerHTML = `Your time: ${gameTime/1000} seconds.<br>${overScreen.children[2].innerHTML}`;
 	gameOver(seed);
 }
 
+/**
+ * Ends the game.
+ * @param {Number} seed The game seed.
+ */
 function gameOver(seed) {
+
+	// Reveal the game seed.
 	overScreen.children[2].children[1].innerText = seed;
 	overScreen.style.display = "block";
+
+	// Reset the game.
 	game.reset();
 	flagIndicator.style.backgroundColor = "#4a4a4a";
+
+	// Stop timer.
 	clearInterval(timerId);
 }
 
+// Standard game button
 standard.addEventListener("click", async () => {
 	await startGame(20, 50);
 });
 
+// Custom game button
 custom.addEventListener("click", () => {
 	customForm.style.display = "block";
 });
 
+// Game board size slider
 size.addEventListener("input", () => {
 	const sizeVal = Number(size.value);
 	let maxMines = sizeVal*sizeVal;
@@ -682,29 +692,37 @@ size.addEventListener("input", () => {
 	sizeDisplay.innerText = sizeVal;
 });
 
+// Number of mines slider.
 mines.addEventListener("input", () => {
 	minesDisplay.innerText = mines.value;
 });
 
+// Hide game over message.
 hideOver.addEventListener("click", () => {
 	overScreen.style.display = "none";
 	showOver.style.display = "block";
 });
 
+// Show game over message.
 showOver.addEventListener("click", () => {
 	overScreen.style.display = "block";
 	showOver.style.display = "none";
 });
 
+// Start custom game button.
 customStart.addEventListener("click", async (event) => {
+
+	// Get form values.
 	event.preventDefault();
 	const sizeVal = Number(size.value);
 	const minesVal = Number(mines.value);
 
+	// Make sure seed is valid.
 	if (document.getElementById("seed").value) {
 		if (isNaN(document.getElementById("seed").value)) {
 			alert("Seed must be a number.");
 		} else {
+			// Start game with custom seed and reset form.
 			await startGame(sizeVal, minesVal, Number(document.getElementById("seed").value));
 			size.value = 20;
 			sizeDisplay.innerText = 20;
@@ -714,6 +732,7 @@ customStart.addEventListener("click", async (event) => {
 			customForm.style.display = "none";
 		}
 	} else {
+		// Start game without custom seed and reset form.
 		await startGame(sizeVal, minesVal);
 		size.value = 20;
 		sizeDisplay.innerText = 20;
@@ -724,16 +743,26 @@ customStart.addEventListener("click", async (event) => {
 	}
 });
 
+// Pause game button.
 pause.addEventListener("click", async () => {
+
+	// Ignore if game is already paused.
 	if (game.isPaused()) return;
+
+	// Tell server to pause game.
 	const res = await socket.emitWithAck("pause");
+
+	// If there is an error, ignore pause command.
 	if (res.error) {
 		console.log(res.error);
 		return;
 	}
-	const currentTime = Date.now();
+
+	// Stop timer and pause game.
 	clearInterval(timerId);
 	game.pause();
+
+	// If the game has already started, update on-screen timer.
 	if (game.getStarted()) {
 		let sec = Math.floor(res.time/1000) % 60;
 		if (sec < 10) {
@@ -742,30 +771,42 @@ pause.addEventListener("click", async () => {
 		let min = Math.floor(res.time/60000);
 		time.innerText = `${min}:${sec}`;
 	}
-	
+
+	// Destroy game board to prevent cheating.
 	document.getElementById("board-container").removeChild(document.getElementById("main-board"));
 	pause.style.display = "none";
 	play.style.display = "inline-block";
 });
 
+// Resume game button.
 play.addEventListener("click", async () => {
+	// Ignore if game is already running.
 	if (!game.isPaused()) return;
+
+	// Tell server to resume game.
 	const res = await socket.emitWithAck("play");
+
+	// If there is an error, ignore resume command.
 	if (res.error) {
 		console.log(res.error);
 		return;
 	}
+
+	// If the game has started, update (and resume) the timer.
 	if (game.getStarted()) {
 		updateTimer(res.time, res.updated, false);
 	}
 
+	// Resume game object and recreate game board
 	game.resume(res.changes);
 	createInnerBoard(game);
 	pause.style.display = "inline-block";
 	play.style.display = "none";
 });
 
+// Return to menu button.
 returner.addEventListener("click", () => {
+	// Hide game and game over screen, show original menu.
 	app.removeChild(app.children[1]);
 	app.style.display = 'none';
 	overScreen.style.display = "none";
@@ -775,70 +816,115 @@ returner.addEventListener("click", () => {
 	home.style.display = "block";
 });
 
+/**
+ * Handles left-click action on game board.
+ * @returns {void}
+ */
 async function clickGrid() {
+
+	// Get the GridItem object for the square that was clicked and make sure it is valid.
 	const item = game.getItem(Number(this.id.split("-")[0]), Number(this.id.split("-")[1]));
 	if (!item) return;
-	if (!item.isFlagged()) {
-		const res = await socket.emitWithAck("uncover", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
-		console.log(JSON.stringify(res));
-		if (res.error) {
-			console.log(res.error);
-			return;
-		}
 
-		updateTimer(res.time, res.updated, true);
-		game.start();
-		const badFlags = game.updateGame(res.changes);
-		if (!res.seed) {
-			updateInnerBoard(game);
-		} else if (res.win) {
-			winGame(res.time, res.seed);
-		} else {
-			console.log(badFlags);
-			endGame(badFlags, res.seed);
-		}
-		// manageCalls(item);
+	if (item.isFlagged()) return; // Flagged squares cannot be clicked.
+
+	// Tell server to uncover the square.
+	const res = await socket.emitWithAck("uncover", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
+
+	// If there is an error, ignore the command.
+	if (res.error) {
+		console.log(res.error);
+		return;
+	}
+
+	// Update the game timer.
+	updateTimer(res.time, res.updated, true);
+
+	// Start the game (if it hasn';'t started already).
+	game.start();
+
+	// Capture incoorect flags if the game is over.
+	const badFlags = game.updateGame(res.changes);
+
+	if (!res.seed) { // Game is not over: update board.
+		updateInnerBoard(game);
+	} else if (res.win) { // Game win: trigger winGame function.
+		winGame(res.time, res.seed);
+	} else { // Game lost: Trigger lose function.
+		endGame(badFlags, res.seed);
 	}
 }
 
+/**
+ * Handles right-click aciton on game board.
+ * @param {Event} event The click event.
+ * @returns {void}
+ */
 async function rClickGrid(event) {
 	event.preventDefault()
+
+	// Get the GridItem object for the square that was clicked and make sure it is valid.
 	const item = game.getItem(Number(this.id.split("-")[0]), Number(this.id.split("-")[1]));
+	if (!item) return;
+
+	// If there are still flags left to use, and the square is not already flagged, flag it.
 	if (game.getFlagsRemaining() && item.isCovered() && !item.isFlagged()) {
+		// Tell the server to flag the square.
 		const res = await socket.emitWithAck("flag", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
+
+		// If there is an error, ignore the command.
 		if (res.error) return;
 
+		// Update the game timer.
 		updateTimer(res.time, res.updated, true);
-		
+
+		// Flag the square.
 		this.classList.add("flagged");
 		item.setFlag();
 		this.innerHTML = symbols[10];
+
+		// Update number of remaining flags based on server response.
 		game.setFlagsRemaining(res.flags);
+
+		// Change flag background based on whether there are any left.
 		if (!game.getFlagsRemaining()) {
 			flagIndicator.style.backgroundColor = "#AA0000";
 		}
+
+		// If the user has won, trigger winGame function.
 		if (res.win) {
 			winGame(res.time, res.seed);
 		}
+
+	// If the square was flagged, remove the flag.
 	} else if (item.isFlagged()) {
+
+		// Tell the server to remove the flag.
 		const res = await socket.emitWithAck("unflag", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
+
+		// If there is an error, ignore the command.
 		if (res.error) return;
 
+		// Update the timer.
 		updateTimer(res.time, res.updated, true);
 
+		// Remove the flag on the square.
 		this.classList.remove("flagged");
 		item.clearFlag();
 		this.innerHTML = symbols[11];
+
+		// Update number of remaining flags based on server response.
 		game.setFlagsRemaining(res.flags);
+
+		// Use default flag background since there is at least one flag remaining.
 		flagIndicator.style.backgroundColor = "#4a4a4a";
 	}
+
+	// Update indicator for number of remaining flags.
 	flagIndicator.innerText = game.getFlagsRemaining();
 }
 
+// Log connection errors.
 socket.on("connect_error", (err) => {
 	console.log(`Socket conntection error:\nERROR: ${err}\nERROR NAME: ${err.name}\nERROR MESSAGE: ${err.message}\nERROR CAUSE: ${err.cause}`);
-});
-
-socket.onAnyOutgoing((eventName, ...args) => {
-	console.log(eventName, args);
 });
