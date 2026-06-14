@@ -57,36 +57,37 @@ io.on('connection', (socket) => {
 	// Generate game
 	socket.on("generate", (gameData, callback) => {
 		gameSocket.generateHandler(games, id, gameData, callback);
+	});
 
-		// Uncover square
-		socket.on("uncover", (coords, callback) => {
-			gameSocket.uncoverHandler(games[id], coords, callback);
-		});
+	// Uncover square
+	socket.on("uncover", (coords, callback) => {
+		gameSocket.uncoverHandler(games[id], coords, callback);
+	});
 
-		// Flag square
-		socket.on("flag", (coords, callback) => {
-			gameSocket.flagHandler(games[id], coords, callback);
-		});
+	// Flag square
+	socket.on("flag", (coords, callback) => {
+		gameSocket.flagHandler(games[id], coords, callback);
+	});
 
-		// Remove flag
-		socket.on("unflag", (coords, callback) => {
-			gameSocket.unflagHandler(games[id], coords, callback);
-		});
+	// Remove flag
+	socket.on("unflag", (coords, callback) => {
+		gameSocket.unflagHandler(games[id], coords, callback);
+	});
 
-		// Pause game
-		socket.on("pause", (callback) => {
-			gameSocket.pauseHandler(games[id], callback);
-		});
+	// Pause game
+	socket.on("pause", (callback) => {
+		gameSocket.pauseHandler(games[id], callback);
+	});
 
-		// Resume game
-		socket.on("play", (callback) => {
-			gameSocket.playHandler(games[id], callback);
-		});
+	// Resume game
+	socket.on("play", (callback) => {
+		gameSocket.playHandler(games[id], callback);
+	});
 
-		// On socket disconnect
-		socket.on("disconnect", () => {
-			delete games[id];
-		});
+	// On socket disconnect
+	socket.on("disconnect", () => {
+		delete games[id];
+		socket.removeAllListeners();
 	});
 });
 
