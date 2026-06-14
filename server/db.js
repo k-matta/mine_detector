@@ -6,7 +6,7 @@ dotenv.config({ path: ["../.env", "/etc/secrets/.env"] });
 
 // Define important constants
 const dbURL = process.env.PUBLIC_DB_URL;
-const dbKey = process.env.PUBLIC_DB_PUBLISHABLE_KEY;
+const dbKey = process.env.SECRET_DB_KEY;
 const db = createClient(dbURL, dbKey, {db: {schema: "api"}});
 
 /**
