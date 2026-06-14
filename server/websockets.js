@@ -1,4 +1,5 @@
-import { Game } from "./game.js";
+import { Game } from "./server_game.js";
+import { updateIfRecord } from "./db.js";
 /**
  * The socket.io callback function for responding to the client.
  * @callback WebsocketCallback
@@ -96,9 +97,16 @@ export function uncoverHandler(game, coords, callback) {
 	// Calculate the time since the game started to sync the client timer.
 	game.calculateTime();
 
+	// Update user record, if required. Otherwise, retrieve record data.
+	const timeStamp = new Date();
+	let record;
+	if (gameStatus == "won") {
+		record = updateIfRecord(123, game.getTime(), game.getSeed(), timeStamp.toISOString());
+	}
+
 	// Send changes to the client.
-	callback({changes: game.getChanges(), seed: gameStatus ? game.getSeed() : null, win: gameStatus == "won", time: game.getTime(), updated: Date.now()});
-	
+	callback({changes: game.getChanges(), seed: gameStatus ? game.getSeed() : null, win: gameStatus == "won", time: game.getTime(), updated: timeStamp.getTime(), record});
+
 	// Clear list of changes and end the game if necessary.
 	game.clearChanges();
 	if (gameStatus) {
@@ -152,17 +160,20 @@ export function flagHandler(game, coords, callback) {
 	game.removeFlag();
 	square.setFlag();
 	let win = false;
+	let record;
 
 	// Check if the user has won and calculate elapsed time to sync the client.
 	if (!game.getValidRemaining() && !game.getFlagsRemaining()) {
+		const timeStamp = new Date();
 		game.winGame();
+		record = updateIfRecord(123, game.getTime(), game.getSeed(), timeStamp.toISOString());
 		win = true;
 	} else {
 		game.calculateTime();
 	}
 
 	// Send changes to the client.
-	callback({flags: game.getFlagsRemaining(), time: game.getTime(), updated: Date.now(), win, seed: game.getSeed()});
+	callback({flags: game.getFlagsRemaining(), time: game.getTime(), updated: timeStamp.getTime(), win, seed: game.getSeed(), record});
 }
 
 /**

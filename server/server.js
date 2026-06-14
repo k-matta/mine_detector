@@ -7,9 +7,8 @@ import { fileURLToPath } from 'url';
 import cors from "cors";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
-import { Game } from "./game.js";
+import { Game } from "./server_game.js";
 import * as gameSocket from "./websockets.js";
-import { createClient } from "@supabase/supabase-js";
 
 // Create server constants.
 const app = express();

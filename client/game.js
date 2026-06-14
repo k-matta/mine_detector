@@ -391,6 +391,20 @@ const game = new Game();
 let timerId = 0;
 
 /**
+ * Turns a Date.now() number into a string formatted as 'minutes:seconds'.
+ * @param {Number} time The time to format.
+ * @returns {String} The formatted time.
+ */
+function getReadableTime(time) {
+	let sec = Math.floor(time/1000) % 60;
+		if (sec < 10) {
+			sec = `0${sec}`;
+		}
+		let min = Math.floor(time/60000);
+	return `${min}:${sec}`;
+}
+
+/**
  * Updates the on-screen timer once per second.
  */
 function mainTimer() {
@@ -434,16 +448,9 @@ function updateTimer(gameTime, updated, clearPrevious) {
 	const currentTime = Date.now();
 	const totalTime = gameTime + currentTime - updated;
 
-	// Creating the string to display.
-	let sec = Math.floor(totalTime/1000) % 60;
-	if (sec < 10) {
-		sec = `0${sec}`;
-	}
-	let min = Math.floor(totalTime/60000);
-
 	// Clear previous timer if necessary.
 	if (clearPrevious) clearInterval(timerId);
-	time.innerText = `${min}:${sec}`;
+	time.innerText = getReadableTime(totalTime);
 
 	// Set the temporary correction timer to run to keep the client and server times synced.
 	const offset = totalTime % 1000;
@@ -630,11 +637,27 @@ function endGame(badFlags, seed) {
 }
 
 /**
+ * @typedef {Object} dbSuccess A message to indicate success for a database operation.
+ * @property {String} success A short success message.
+*/
+/**
+ * @typedef {Object} dbError An error message returned from database operations.
+ * @property {String} error A description of the error.
+*/
+/**
+ * @typedef {Object} recordData An object containing information about a user's high score.
+ * @property {Number?} time The fastest time the user has gotten on a standard game, if known; null otherwise.
+ * @property {Number | String?} seed The seed of the game, if known; "unknown" otherwise.
+ * @property {String?} set_on The date the record was set, if known; "unknown" otherwise.
+ */
+
+/**
  * Cleans up the game board when the user wins.
  * @param {Number} gameTime The time taken to win the game.
  * @param {Number} seed The game seed.
+ * @param {dbError | dbSuccess | recordData} record The user's record (if not beaten) or an error or success code depending on the database response.
  */
-function winGame(gameTime, seed) {
+function winGame(gameTime, seed, record) {
 	for (let i = 0; i < game.getSize(); i++) {
 		for (let j = 0; j < game.getSize(); j++) {
 			const item = game.getItem(i, j);
@@ -649,6 +672,18 @@ function winGame(gameTime, seed) {
 	// Set game win message.
 	overScreen.children[1].innterText = "You Win!";
 	overScreen.children[2].innerHTML = `Your time: ${gameTime/1000} seconds.<br>${overScreen.children[2].innerHTML}`;
+	if (record.success) {
+		overScreen.children[2].innerHTML = "<strong>You set a new record!</strong><br>" + overScreen.children[2].innerHTML;
+	} else if (record.time) {
+		let recordDate;
+		if (record.date != "unknwon") {
+			recordDate = new Date(record.date);
+			recordData = recordDate.toLocaleString();
+		}
+		overScreen.children[2].innerHTML += `<br>Your best time was <strong>${getReadableTime(record.time)}</strong> with seed <strong>${record.seed}</strong> set on date <strong>${recordDate}</strong>.`;
+	} else {
+		overScreen.children[2].innerHTML += "<br>There was an error setting or retrieving your record."
+	}
 	gameOver(seed);
 }
 
@@ -764,12 +799,7 @@ pause.addEventListener("click", async () => {
 
 	// If the game has already started, update on-screen timer.
 	if (game.getStarted()) {
-		let sec = Math.floor(res.time/1000) % 60;
-		if (sec < 10) {
-			sec = `0${sec}`;
-		}
-		let min = Math.floor(res.time/60000);
-		time.innerText = `${min}:${sec}`;
+		time.innerText = getReadableTime(res.time);
 	}
 
 	// Destroy game board to prevent cheating.
@@ -849,7 +879,7 @@ async function clickGrid() {
 	if (!res.seed) { // Game is not over: update board.
 		updateInnerBoard(game);
 	} else if (res.win) { // Game win: trigger winGame function.
-		winGame(res.time, res.seed);
+		winGame(res.time, res.seed, res.record);
 	} else { // Game lost: Trigger lose function.
 		endGame(badFlags, res.seed);
 	}
