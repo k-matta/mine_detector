@@ -56,7 +56,7 @@ io.on('connection', (socket) => {
 
 	// Generate game
 	socket.on("generate", (gameData, callback) => {
-		gameSocket.generateHandler(games, gameData, callback);
+		gameSocket.generateHandler(games, id, gameData, callback);
 
 		// Uncover square
 		socket.on("uncover", (coords, callback) => {
@@ -113,7 +113,16 @@ app.post("/api/token", async (req, res) => {
 	// Return the access_token to our client as { access_token: "..."}
 	res.send({access_token});
 
-	games[req.body.code] = new Game();
+	// Retrieving the user's ID for the database records.
+	const userRes = await fetch("https://discord.com/api/users/@me", {
+		headers: {
+			"Authorization": `Bearer ${access_token}`
+		}
+	});
+
+	const {user} = await userRes.json();
+
+	games[req.body.code] = new Game(user.id);
 });
 
 server.listen(port, () => {

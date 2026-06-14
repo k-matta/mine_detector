@@ -11,7 +11,12 @@ export class Game {
 	 * @property {Number} j The y-coordinate of the current square.
 	 */
 
-	constructor() {
+	/**
+	 * Creates a new Game object.
+	 * @param {Number} id The ID of the user playing the game.
+	 */
+	constructor(id) {
+		this.id = id;
 		/** @type {Number} The size of the board */
 		this.size = 0;
 		/** @type {Array<Array<GridItem>>} The current state of the game board */
@@ -34,6 +39,14 @@ export class Game {
 		this.time = 0;
 		/** @type {Array<gridData>} An array of changes to sync with the client */
 		this.changes = [];
+	}
+
+	/**
+	 * Gets the ID of the user.
+	 * @returns {Number} The user's ID.
+	 */
+	getUserId() {
+		return this.id;
 	}
 
 	/**

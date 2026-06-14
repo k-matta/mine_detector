@@ -102,7 +102,7 @@ export function uncoverHandler(game, coords, callback) {
 	const timeStamp = new Date();
 	let record;
 	if (gameStatus == "won") {
-		record = updateIfRecord(123, game.getTime(), game.getSeed(), timeStamp.toISOString());
+		record = updateIfRecord(game.getUserId(), game.getTime(), game.getSeed(), timeStamp.toISOString());
 	}
 
 	// Send changes to the client.
@@ -167,7 +167,7 @@ export function flagHandler(game, coords, callback) {
 	if (!game.getValidRemaining() && !game.getFlagsRemaining()) {
 		const timeStamp = new Date();
 		game.winGame();
-		record = updateIfRecord(123, game.getTime(), game.getSeed(), timeStamp.toISOString());
+		record = updateIfRecord(game.getUserId(), game.getTime(), game.getSeed(), timeStamp.toISOString());
 		win = true;
 	} else {
 		game.calculateTime();
