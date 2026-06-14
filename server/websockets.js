@@ -10,11 +10,12 @@ import { updateIfRecord } from "./db.js";
 /**
  * Generates a Mine Detector game board.
  * @param {Object<string, Game>} games The object containing all active games.
+ * @param {String} id The id used to identify the user.
  * @param {Object<string, Number>} gameData A list of parameters to define how to generate the game.
  * @param {WebsocketCallback} callback The callback function for responding to the client.
  * @returns {void}
  */
-export function generateHandler(games, gameData, callback) {
+export function generateHandler(games, id, gameData, callback) {
 	// Check if valid game exists
 	if (typeof(games[id]) == "object") {
 		if (!games[id].isOver()) {
