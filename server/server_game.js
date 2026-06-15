@@ -39,6 +39,8 @@ export class Game {
 		this.time = 0;
 		/** @type {Array<gridData>} An array of changes to sync with the client */
 		this.changes = [];
+		/** @type {Boolean} Whether or not the game is standard (i.e., high scores are recorded). */
+		this.isStandard = false;
 	}
 
 	/**
@@ -47,6 +49,28 @@ export class Game {
 	 */
 	getUserId() {
 		return this.id;
+	}
+
+	/**
+	 * Indicates whether tha game is standard.
+	 * @returns {Boolean} true if the game is standard; false otherwise.
+	 */
+	getStandard() {
+		return this.isStandard;
+	}
+
+	/**
+	 * Marks the game as standard.
+	 */
+	setStandard() {
+		this.isStandard = true;
+	}
+
+	/**
+	 * Marks the game as standard.
+	 */
+	clearStandard() {
+		this.isStandard = false;
 	}
 
 	/**
@@ -277,6 +301,9 @@ export class Game {
 		if (boardSize < 2) throw new Error("Invalid board size.");
 		if (numMines >= boardSize*boardSize) throw new Error("Invalid number of mines.");
 		if (gameSeed && typeof(gameSeed) != "number") throw new Error("Invalid seed.");
+
+		if (boardSize == 20 && numMines == 50 && !gameSeed) this.setStandard();
+		else this.clearStandard();
 
 		this.setSize(boardSize);
 		this.setFlagsRemaining(numMines);
