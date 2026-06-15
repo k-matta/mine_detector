@@ -64,13 +64,13 @@ io.on('connection', (socket) => {
 	});
 
 	// Uncover square
-	socket.on("uncover", (coords, callback) => {
-		gameSocket.uncoverHandler(games[id], coords, callback);
+	socket.on("uncover", async (coords, callback) => {
+		await gameSocket.uncoverHandler(games[id], coords, callback);
 	});
 
 	// Flag square
-	socket.on("flag", (coords, callback) => {
-		gameSocket.flagHandler(games[id], coords, callback);
+	socket.on("flag", async (coords, callback) => {
+		await gameSocket.flagHandler(games[id], coords, callback);
 	});
 
 	// Remove flag

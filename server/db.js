@@ -18,7 +18,6 @@ const db = createClient(dbURL, dbKey, {db: {schema: "api"}});
  * @property {String} error A description of the error.
 */
 
-
 /**
  * @typedef {Object} recordData An object containing information about a user's high score.
  * @property {Number?} time The fastest time the user has gotten on a standard game, if known; null otherwise.
@@ -63,7 +62,7 @@ async function selectHS(userID) {
  * @param {String} date The timestamp of when the record was set.
  * @returns {dbError | dbSuccess} A success or error message depending on the database response.
  */
-export async function upsertHS(userID, time, seed, date) {
+async function upsertHS(userID, time, seed, date) {
 	const {error} = await SupabaseClient.from("Records").upsert({id: userID, time, seed, set_on: date}, {onConflict: "id", ignoreDuplicates: false});
 	if (error) {
 		console.log(error);
@@ -86,7 +85,7 @@ export async function updateIfRecord(userID, time, seed, date) {
 		return {error: sRes.error};
 	}
 	if (sRes.time >= time) {
-		return await upsertHS(userID, time, seed, date);
+		return upsertHS(userID, time, seed, date);
 	}
 	return sRes;
 }

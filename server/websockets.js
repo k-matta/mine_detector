@@ -55,7 +55,7 @@ export function generateHandler(games, id, gameData, callback) {
  * @param {WebsocketCallback} callback The callback function for responding to the client.
  * @returns {void}
  */
-export function uncoverHandler(game, coords, callback) {
+export async function uncoverHandler(game, coords, callback) {
 
 	// Make sure action is valid.
 	if (!game) return;
@@ -104,7 +104,7 @@ export function uncoverHandler(game, coords, callback) {
 	console.log(gameStatus, game.getStandard());
 	if (gameStatus == "won" && game.getStandard()) {
 		console.log("won");
-		record = updateIfRecord(game.getUserId(), game.getTime(), game.getSeed(), timeStamp.toISOString());
+		record = await updateIfRecord(game.getUserId(), game.getTime(), game.getSeed(), timeStamp.toISOString());
 	}
 	console.log(record);
 
@@ -125,7 +125,7 @@ export function uncoverHandler(game, coords, callback) {
  * @param {WebsocketCallback} callback The callback function for responding to the client.
  * @returns {void}
  */
-export function flagHandler(game, coords, callback) {
+export async function flagHandler(game, coords, callback) {
 
 	// Make sure action is valid.
 	if (!game) return;
@@ -174,7 +174,7 @@ export function flagHandler(game, coords, callback) {
 		console.log("Flag win!", game.getStandard());
 		if (game.getStandard())
 			console.log("won");
-			record = updateIfRecord(game.getUserId(), game.getTime(), game.getSeed(), timeStamp.toISOString());
+			record = await updateIfRecord(game.getUserId(), game.getTime(), game.getSeed(), timeStamp.toISOString());
 		win = true;
 	} else {
 		game.calculateTime();
