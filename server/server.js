@@ -11,6 +11,7 @@ import { Server } from "socket.io";
 import { Game } from "./server_game.js";
 import * as gameSocket from "./websockets.js";
 import crypto from "node:crypto";
+import * as cookie from "cookie";
 
 // Create server constants.
 const app = express();
@@ -61,10 +62,12 @@ io.on('connection', (socket) => {
 	const cookieHeader = socket.handshake.headers.cookie;
 
 	if (!cookieHeader) return;
-	const cookies = parseCookies(cookieHeader);
+	const cookies = cookie.parse(cookieHeader);
 	if (!cookies) return;
-	const id = cookies.session;
-	if (!id) return;
+	const token = cookies.session;
+	if (!token) return;
+
+	const id = crypto.createHash('sha256').update(token).digest("hex");
 
 	try {
 		games[id].clearSelfDestruct();
@@ -144,7 +147,8 @@ app.post("/api/token", async (req, res) => {
 	// Generating authentication for user
 	const user = await userRes.json();
 	const sessionCode = crypto.randomBytes(32).toString("base64url");
-	games[sessionCode] = new Game(Number(user.id));
+	const hashed = crypto.createHash("sha256").update(sessionCode).digest("hex");
+	games[hashed] = new Game(Number(user.id));
 
 	// Setting authenticated cookie.
 	res.cookie("session", sessionCode, {
