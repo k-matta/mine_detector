@@ -304,6 +304,7 @@ export class Game {
 	 */
 	generateGameBoard(boardSize, numMines, gameSeed = null) {
 		this.clearOver();
+		this.clearStart();
 		this.clear
 		this.timeEvents = [];
 		this.time = 0;
