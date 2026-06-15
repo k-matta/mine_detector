@@ -314,7 +314,7 @@ export class Game {
 		if (numMines >= boardSize*boardSize) throw new Error("Invalid number of mines.");
 		if (gameSeed && typeof(gameSeed) != "number") throw new Error("Invalid seed.");
 
-		if (boardSize == 10 && numMines == 10 && !gameSeed) this.setStandard();
+		if (boardSize == 20 && numMines == 50 && !gameSeed) this.setStandard();
 		else this.clearStandard();
 
 		this.setSize(boardSize);

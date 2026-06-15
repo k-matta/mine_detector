@@ -604,8 +604,6 @@ function updateInnerBoard(game) {
  * @param {Number} seed The game seed.
  */
 function endGame(badFlags, seed) {
-	// Stop timer.
-	clearInterval(timerId);
 	let unflagged = 0;
 	for (let i = 0; i < game.getSize(); i++) {
 		for (let j = 0; j < game.getSize(); j++) {
@@ -657,9 +655,6 @@ function endGame(badFlags, seed) {
  * @param {dbError | dbSuccess | recordData} record The user's record (if not beaten) or an error or success code depending on the database response.
  */
 function winGame(gameTime, seed, record) {
-	// Stop timer.
-	clearInterval(timerId);
-	console.log(JSON.stringify(record));
 	for (let i = 0; i < game.getSize(); i++) {
 		for (let j = 0; j < game.getSize(); j++) {
 			const item = game.getItem(i, j);
@@ -706,7 +701,7 @@ function gameOver(seed) {
 // Standard game button
 standard.addEventListener("click", async () => {
 	customForm.style.display = "none";
-	await startGame(10, 10);
+	await startGame(20, 50);
 });
 
 // Custom game button
@@ -859,7 +854,6 @@ async function clickGrid() {
 
 	// Tell server to uncover the square.
 	const res = await socket.emitWithAck("uncover", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
-	console.log(JSON.stringify(res))
 	// If there is an error, ignore the command.
 	if (res.error) {
 		console.log(res.error);
@@ -868,17 +862,17 @@ async function clickGrid() {
 
 	// Update the game timer.
 	updateTimer(res.time, res.updated, true);
-
-	// Start the game (if it hasn';'t started already).
+	if (res.seed) clearInterval(timerId);
+	
+	// Start the game (if it hasn't started already).
 	game.start();
-
+	
 	// Capture incoorect flags if the game is over.
 	const badFlags = game.updateGame(res.changes);
 
 	if (!res.seed) { // Game is not over: update board.
 		updateInnerBoard(game);
 	} else if (res.win) { // Game win: trigger winGame function.
-		console.log(res.record);
 		winGame(res.time, res.seed, res.record);
 	} else { // Game lost: Trigger lose function.
 		endGame(badFlags, res.seed);
@@ -889,25 +883,25 @@ async function clickGrid() {
  * Handles right-click aciton on game board.
  * @param {Event} event The click event.
  * @returns {void}
- */
+*/
 async function rClickGrid(event) {
 	event.preventDefault()
 
 	// Get the GridItem object for the square that was clicked and make sure it is valid.
 	const item = game.getItem(Number(this.id.split("-")[0]), Number(this.id.split("-")[1]));
 	if (!item) return;
-
+	
 	// If there are still flags left to use, and the square is not already flagged, flag it.
 	if (game.getFlagsRemaining() && item.isCovered() && !item.isFlagged()) {
 		// Tell the server to flag the square.
 		const res = await socket.emitWithAck("flag", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
-		console.log(JSON.stringify(res))
-
+		
 		// If there is an error, ignore the command.
 		if (res.error) return;
 		
 		// Update the game timer.
 		updateTimer(res.time, res.updated, true);
+		if (res.seed) clearInterval(timerId);
 		
 		// Flag the square.
 		this.classList.add("flagged");
@@ -923,7 +917,6 @@ async function rClickGrid(event) {
 		}
 		// If the user has won, trigger winGame function.
 		if (res.win) {
-			console.log(JSON.stringify(res.record));
 			winGame(res.time, res.seed, res.record);
 		}
 
