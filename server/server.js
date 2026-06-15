@@ -97,7 +97,7 @@ io.on('connection', (socket) => {
 			} else {
 				delete games[id];
 			}
-		}
+		} catch(e) {}
 		socket.removeAllListeners();
 	});
 });
