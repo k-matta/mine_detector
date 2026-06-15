@@ -444,8 +444,11 @@ export class Game {
 	 * @returns {String} 'won' to indicate that the user has won the game.
 	 */
 	winGame() {
+		console.log("winning");
 		this.calculateTime();
+		console.log("still winning");
 		this.setOver();
+		console.log("won");
 		return "won";
 	}
 
