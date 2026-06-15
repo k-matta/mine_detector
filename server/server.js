@@ -90,11 +90,13 @@ io.on('connection', (socket) => {
 
 	// On socket disconnect
 	socket.on("disconnect", () => {
-		if (!games[id].isOver()) {
-			games[id].pause();
-			games[id].setSelfDestruct();
-		} else {
-			delete games[id];
+		try {
+			if (!games[id].isOver()) {
+				games[id].pause();
+				games[id].setSelfDestruct();
+			} else {
+				delete games[id];
+			}
 		}
 		socket.removeAllListeners();
 	});
