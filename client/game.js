@@ -678,11 +678,11 @@ function winGame(gameTime, seed, record) {
 		overScreen.children[2].innerHTML = "<strong>You set a new record!</strong><br>" + overScreen.children[2].innerHTML;
 	} else if (record.time) {
 		let recordDate;
-		if (record.date != "unknwon") {
-			recordDate = new Date(record.date);
+		if (record.set_on != "unknwon") {
+			recordDate = new Date(record.set_on);
 			recordDate = recordDate.toLocaleString();
 		}
-		overScreen.children[2].innerHTML += `<br>Your best time was <strong>${getReadableTime(record.time)}</strong> with seed <strong>${record.seed}</strong> set on date <strong>${recordDate}</strong>.`;
+		overScreen.children[2].innerHTML += `<br>Your best time was <strong>${getReadableTime(record.time)}.${record.time%1000}</strong> with seed <strong>${record.seed}</strong> set on date <strong>${recordDate}</strong>.`;
 	}
 	gameOver(seed);
 }
