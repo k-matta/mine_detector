@@ -882,6 +882,7 @@ async function clickGrid() {
 	if (!res.seed) { // Game is not over: update board.
 		updateInnerBoard(game);
 	} else if (res.win) { // Game win: trigger winGame function.
+		console.log(res.record);
 		winGame(res.time, res.seed, res.record);
 	} else { // Game lost: Trigger lose function.
 		endGame(badFlags, res.seed);
@@ -907,25 +908,26 @@ async function rClickGrid(event) {
 
 		// If there is an error, ignore the command.
 		if (res.error) return;
-
+		
 		// Update the game timer.
 		updateTimer(res.time, res.updated, true);
-
+		
 		// Flag the square.
 		this.classList.add("flagged");
 		item.setFlag();
 		this.innerHTML = symbols[10];
-
+		
 		// Update number of remaining flags based on server response.
 		game.setFlagsRemaining(res.flags);
-
+		
 		// Change flag background based on whether there are any left.
 		if (!game.getFlagsRemaining()) {
 			flagIndicator.style.backgroundColor = "#AA0000";
 		}
-
+		
 		// If the user has won, trigger winGame function.
 		if (res.win) {
+			console.log(res.record);
 			winGame(res.time, res.seed, res.record);
 		}
 
