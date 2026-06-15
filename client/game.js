@@ -705,6 +705,7 @@ function gameOver(seed) {
 
 // Standard game button
 standard.addEventListener("click", async () => {
+	customForm.style.display = "none";
 	await startGame(10, 10);
 });
 
@@ -839,7 +840,7 @@ returner.addEventListener("click", () => {
 	app.style.display = 'none';
 	overScreen.style.display = "none";
 	overScreen.children[1].innerText = "";
-	overScreen.children[2].innerHTML = overScreen.children[2].innerHTML.split("<br>")[1];
+	overScreen.children[2].innerHTML = overScreen.children[2].innerHTML.split("<br>").find((string) => string.indexOf("Seed") != -1);
 	overScreen.children[2].children[0].innerText = "";
 	home.style.display = "block";
 });
