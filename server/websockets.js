@@ -106,6 +106,7 @@ export function uncoverHandler(game, coords, callback) {
 		console.log("won");
 		record = updateIfRecord(game.getUserId(), game.getTime(), game.getSeed(), timeStamp.toISOString());
 	}
+	console.log(record);
 
 	// Send changes to the client.
 	callback({changes: game.getChanges(), seed: gameStatus ? game.getSeed() : null, win: gameStatus == "won", time: game.getTime(), updated: timeStamp.getTime(), record});
@@ -178,7 +179,7 @@ export function flagHandler(game, coords, callback) {
 	} else {
 		game.calculateTime();
 	}
-
+	console.log(record);
 	// Send changes to the client.
 	callback({flags: game.getFlagsRemaining(), time: game.getTime(), updated: timeStamp.getTime(), win, seed: game.getSeed(), record});
 }
