@@ -384,10 +384,8 @@ export class Game {
 		while (elements.length) {
 			const currentItem = elements[0];
 			const [i, j] = currentItem.getCoords();
-			console.log(i, j);
 			currentItem.clearCover();
 			this.addChange({val: currentItem.getValue(), i: currentItem.getCoords()[0], j: currentItem.getCoords()[1]});
-			console.log(currentItem);
 			if (!currentItem.getValue()) {
 				for (let di = -1; di < 2; di++) {
 					for (let dj = -1; dj < 2; dj++) {
@@ -403,14 +401,12 @@ export class Game {
 							return nextI == compI && nextJ == compJ
 						}))) {
 							elements.push(next);
-							console.log(next.getCoords());
 						}
 					}
 				}
 			}
 			elements.splice(0, 1);
 			this.removeValid();
-			console.log(this.getValidRemaining());
 			if (!this.getValidRemaining() && !this.getFlagsRemaining()) {
 				win = true;
 				break;
