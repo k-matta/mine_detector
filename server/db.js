@@ -61,7 +61,7 @@ async function selectHS(userID) {
  * @returns {dbError | dbSuccess} A success or error message depending on the database response.
  */
 async function upsertHS(userID, time, seed, date) {
-	const {error} = await SupabaseClient.from("Records").upsert({id: userID, time, seed, set_on: date}, {onConflict: "id", ignoreDuplicates: false});
+	const {error} = await db.from("Records").upsert({id: userID, time, seed, set_on: date}, {onConflict: "id", ignoreDuplicates: false});
 	if (error) {
 		console.log(error);
 		return {error: "Unable to retrieve user data."};
