@@ -36,10 +36,13 @@ async function selectHS(userID) {
 		console.log(error);
 		return {error: "Unable to retrieve user data."};
 	}
+	console.log(data);
 	if (!data) {
+		console.log("No record found.");
 		return {time: 0, seed: null, set_on: null};
 	}
 	if (!data.length) {
+		console.log("No record found.");
 		return {time: 0, seed: null, set_on: null};
 	}
 	if (!data[0].time) {
@@ -48,6 +51,7 @@ async function selectHS(userID) {
 	}
 	if (!data[0].seed) data.seed = "unknown";
 	if (!data[0].set_on) data.set_on = "unknown";
+	console.log(data);
 	return data[0];
 }
 
