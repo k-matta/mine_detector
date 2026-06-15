@@ -298,6 +298,8 @@ export class Game {
 	 */
 	generateGameBoard(boardSize, numMines, gameSeed = null) {
 		this.clearOver();
+		this.timeEvents = [];
+		this.time = 0;
 		if (boardSize < 2) throw new Error("Invalid board size.");
 		if (numMines >= boardSize*boardSize) throw new Error("Invalid number of mines.");
 		if (gameSeed && typeof(gameSeed) != "number") throw new Error("Invalid seed.");
