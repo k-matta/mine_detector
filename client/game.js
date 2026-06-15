@@ -357,6 +357,10 @@ class GridItem {
 
 // Create websocket conneciton.
 const socket = io(import.meta.env.VITE_SERVER_URL, {
+	reconnection: true,
+	reconnectionAttempts: Infinity,
+	reconnectionDelay: 1000,
+	reconnectionDelayMax: 5000,
 	auth: {userId: code},
 	path: "/socket/"
 });

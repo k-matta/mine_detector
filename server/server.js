@@ -39,10 +39,6 @@ const io = new Server(server, {
 		origin: process.env.CORS_ALLOW.split(","),
 		methods: ["GET", "POST"]
 	},
-	reconnection: true,
-	reconnectionAttempts: Infinity,
-	reconnectionDelay: 1000,
-	reconnectionDelayMax: 5000,
 	connectionStateRecovery: {
 		maxDisconnectionDuration: 2 * 60 * 1000 // 2 minutes
 	},
@@ -59,6 +55,7 @@ io.on('connection', (socket) => {
 	const id = socket.handshake.auth.userId;
 	try {
 		games[id].clearSelfDestruct();
+		games[id].resume();
 	} catch(e) {}
 
 	// Generate game
@@ -93,7 +90,12 @@ io.on('connection', (socket) => {
 
 	// On socket disconnect
 	socket.on("disconnect", () => {
-		games[id].setSelfDestruct();
+		if (!games[id].isOver()) {
+			games[id].pause();
+			games[id].setSelfDestruct();
+		} else {
+			delete games[id];
+		}
 		socket.removeAllListeners();
 	});
 });

@@ -455,7 +455,7 @@ export class Game {
 	setSelfDestruct() {
 		this.destructID = setTimeout(() => {
 			delete this;
-		}, 60*1000);
+		}, 2*60*1000);
 	}
 
 	/**

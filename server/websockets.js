@@ -58,6 +58,7 @@ export function generateHandler(games, id, gameData, callback) {
 export function uncoverHandler(game, coords, callback) {
 
 	// Make sure action is valid.
+	if (!game) return;
 	if (game.isOver()) {
 		callback({error: "Game cannot be modified if game is over."});
 		return;
@@ -124,6 +125,7 @@ export function uncoverHandler(game, coords, callback) {
 export function flagHandler(game, coords, callback) {
 
 	// Make sure action is valid.
+	if (!game) return;
 	if (game.isOver()) {
 		callback({error: "Game cannot be modified if game is over."});
 		return;
@@ -187,6 +189,7 @@ export function flagHandler(game, coords, callback) {
 export function unflagHandler(game, coords, callback) {
 
 	// Make sure action is valid.
+	if (!game) return;
 	if (game.isOver()) {
 		callback({error: "Game cannot be modified if game is over."});
 		return;
@@ -235,6 +238,7 @@ export function unflagHandler(game, coords, callback) {
 export function pauseHandler(game, callback) {
 
 	// Make sure the action is valid.
+	if (!game) return;
 	if (game.isOver()) {
 		callback({error: "Game cannot be modified if game is over."});
 		return;
@@ -261,6 +265,7 @@ export function pauseHandler(game, callback) {
 export function playHandler(game, callback) {
 
 	// Make sure the action is valid.
+	if (!game) return;
 	if (game.isOver()) {
 		callback({error: "Game cannot be modified if game is over."});
 		return;
