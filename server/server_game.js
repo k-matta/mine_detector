@@ -82,6 +82,13 @@ export class Game {
 	}
 
 	/**
+	 * Mark the game as not started.
+	 */
+	clearStart() {
+		this.isStarted = false;
+	}
+
+	/**
 	 * Indicates whether or not the game has been started.
 	 * @return {Boolean} true if the game has been started; false otherwise.
 	 */
@@ -140,7 +147,6 @@ export class Game {
 		if (this.timeEvents.length % 2) {
 			this.time += Date.now() - this.timeEvents[this.timeEvents.length-1];
 		}
-		console.log(`${Math.floor(this.time/60000)}:${Math.round(this.time/1000)%60}`);
 	}
 
 	/**
@@ -298,6 +304,7 @@ export class Game {
 	 */
 	generateGameBoard(boardSize, numMines, gameSeed = null) {
 		this.clearOver();
+		this.clear
 		this.timeEvents = [];
 		this.time = 0;
 		if (boardSize < 2) throw new Error("Invalid board size.");
@@ -311,11 +318,9 @@ export class Game {
 		this.setFlagsRemaining(numMines);
 		this.setValidRemaining(this.size*this.size - this.getFlagsRemaining());
 		if (!gameSeed) {
-			// console.log("Generating Seed");
 			const curDate = new Date();
 			gameSeed = curDate.getTime();
 		}
-		// console.log(gameSeed);
 		const rand = mulberry32(gameSeed);
 		this.setSeed(gameSeed);
 		this.board = [];
@@ -337,7 +342,6 @@ export class Game {
 						try {
 							this.board[i][j] = square;
 						} catch(e) {
-							// console.log(e);
 							row.push(square);
 						}
 					}
@@ -346,7 +350,6 @@ export class Game {
 				this.board.push(row);
 			}
 		}
-		// console.log(this.board)
 		for (let i = 0; i < boardSize; i++) {
 			for (let j = 0; j < boardSize; j++) {
 				let adjacent = 0;
