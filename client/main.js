@@ -36,9 +36,8 @@ try {
 		if (auth == null) {
 			throw new Error("Authenticate command failed");
 		}
-		return code;
 	}
-	setupDiscordSdk().then((code) => {
+	setupDiscordSdk().then(() => {
 		// Set up game menus.
 		document.getElementById("title").hidden = true;
 		document.body.innerHTML = `
@@ -86,10 +85,8 @@ try {
 				<p>Seed: <span></span></p>
 				<button type="button" id="return">Return to Menu</button>
 			</section>
-		</section>
-		<div id="code" hidden>${code}</div>`
-		// Use code in websocket connection to ensure client is legitimate.
-
+		</section>`
+	
 		// Inject game script into HTML.
 		const script = document.createElement("script");
 		script.src = "/assets/game.js";

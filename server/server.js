@@ -21,6 +21,7 @@ const __dirname = path.dirname(__filename);
 
 const corsOptions = {
 	origin: '*',
+	credentials: true,
 	optionsSuccessStatus: 200
 };
 
@@ -40,7 +41,8 @@ const server = createServer(app);
 const io = new Server(server, {
 	cors: {
 		origin: process.env.CORS_ALLOW.split(","),
-		methods: ["GET", "POST"]
+		methods: ["GET", "POST"],
+		credentials: true
 	},
 	connectionStateRecovery: {
 		maxDisconnectionDuration: 2 * 60 * 1000 // 2 minutes
@@ -55,7 +57,15 @@ const games = {};
 
 // Register websocket handlers
 io.on('connection', (socket) => {
-	const id = socket.handshake.auth.userId;
+	// Ensure client is authenticated
+	const cookieHeader = socket.handshake.headers.cookie;
+
+	if (!cookieHeader) return;
+	const cookies = parseCookies(cookieHeader);
+	if (!cookies) return;
+	const id = cookies.session;
+	if (!id) return;
+
 	try {
 		games[id].clearSelfDestruct();
 		games[id].resume();
@@ -123,9 +133,7 @@ app.post("/api/token", async (req, res) => {
 	
 	// Retrieve the access_token from the response
 	const { access_token } = await response.json();
-	// Return the access_token to our client as { access_token: "..."}
-	res.send({access_token});
-
+	
 	// Retrieving the user's ID for the database records.
 	const userRes = await fetch("https://discord.com/api/users/@me", {
 		headers: {
@@ -133,9 +141,23 @@ app.post("/api/token", async (req, res) => {
 		}
 	});
 
+	// Generating authentication for user
 	const user = await userRes.json();
 	const sessionCode = crypto.randomBytes(32).toString("base64url");
 	games[sessionCode] = new Game(Number(user.id));
+
+	// Setting authenticated cookie.
+	res.cookie("session", sessionCode, {
+		httpOnly: true,
+		secure: true,
+		sameSite: "none",
+		partitioned: true,
+		maxAge: 24*60*60*1000,
+		domain: `${process.env.VITE_DISCORD_CLIENT_ID}.discordsays.com`
+	});
+
+	// Return the access_token to our client as { access_token: "..."}
+	res.send({access_token});
 });
 
 server.listen(port, () => {

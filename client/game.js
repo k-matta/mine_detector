@@ -1,11 +1,5 @@
 import { io } from "socket.io-client";
 
-// Get client code
-let codeElement = document.getElementById("code");
-const code = codeElement.innerText;
-document.body.removeChild(codeElement);
-codeElement = null;
-
 /**
  * The main Mine-Detector Game object.
  * @class
@@ -361,8 +355,8 @@ const socket = io(import.meta.env.VITE_SERVER_URL, {
 	reconnectionAttempts: Infinity,
 	reconnectionDelay: 1000,
 	reconnectionDelayMax: 5000,
-	auth: {userId: code},
-	path: "/socket/"
+	path: "/socket/",
+	withCredentials: true
 });
 
 // Defining important HTMLELement constants.
