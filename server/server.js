@@ -6,9 +6,11 @@ import * as path from 'path';
 import { fileURLToPath } from 'url';
 import cors from "cors";
 import { createServer } from "node:http";
+import cookieParser from "cookie-parser"; 
 import { Server } from "socket.io";
 import { Game } from "./server_game.js";
 import * as gameSocket from "./websockets.js";
+import crypto from "node:crypto";
 
 // Create server constants.
 const app = express();
@@ -30,6 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ extended: true }));
 app.disable("x-powered-by");
 app.use(cors(corsOptions));
+app.use(cookieParser());
 
 const server = createServer(app);
 
@@ -131,7 +134,8 @@ app.post("/api/token", async (req, res) => {
 	});
 
 	const user = await userRes.json();
-	games[req.body.code] = new Game(Number(user.id));
+	const sessionCode = crypto.randomBytes(32).toString("base64url");
+	games[sessionCode] = new Game(Number(user.id));
 });
 
 server.listen(port, () => {

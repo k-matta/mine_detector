@@ -436,7 +436,6 @@ function tempTimer() {
 		sec = `0${sec}`;
 	}
 	time.innerText = `${min}:${sec}`;
-	clearInterval(timerId);
 	timerId = setInterval(mainTimer, 1000);
 }
 
@@ -458,7 +457,7 @@ function updateTimer(gameTime, updated, clearPrevious) {
 
 	// Set the temporary correction timer to run to keep the client and server times synced.
 	const offset = totalTime % 1000;
-	timerId = setInterval(tempTimer, 1000-offset);
+	timerId = setTimeout(tempTimer, 1000-offset);
 }
 
 /**
@@ -611,6 +610,8 @@ function updateInnerBoard(game) {
  * @param {Number} seed The game seed.
  */
 function endGame(badFlags, seed) {
+	// Stop timer.
+	clearInterval(timerId);
 	let unflagged = 0;
 	for (let i = 0; i < game.getSize(); i++) {
 		for (let j = 0; j < game.getSize(); j++) {
@@ -662,7 +663,9 @@ function endGame(badFlags, seed) {
  * @param {dbError | dbSuccess | recordData} record The user's record (if not beaten) or an error or success code depending on the database response.
  */
 function winGame(gameTime, seed, record) {
-	console.log(record);
+	// Stop timer.
+	clearInterval(timerId);
+	console.log(JSON.stringify(record));
 	for (let i = 0; i < game.getSize(); i++) {
 		for (let j = 0; j < game.getSize(); j++) {
 			const item = game.getItem(i, j);
@@ -704,8 +707,6 @@ function gameOver(seed) {
 	game.reset();
 	flagIndicator.style.backgroundColor = "#4a4a4a";
 
-	// Stop timer.
-	clearInterval(timerId);
 }
 
 // Standard game button
@@ -863,7 +864,7 @@ async function clickGrid() {
 
 	// Tell server to uncover the square.
 	const res = await socket.emitWithAck("uncover", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
-
+	console.log(JSON.stringify(res))
 	// If there is an error, ignore the command.
 	if (res.error) {
 		console.log(res.error);
