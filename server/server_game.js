@@ -30,7 +30,7 @@ export class Game {
 		/** @type {Boolean} Whether or not the game is paused */
 		this.paused = false;
 		/** @type {Boolean} Whether or not the game is over */
-		this.over = false;
+		this.over = true;
 		/** @type {Boolean} Whether or not the game has started */
 		this.isStarted = false;
 		/** @type {Array<Number>} A list of all start/pause times to calculate total time passed */
@@ -216,6 +216,12 @@ export class Game {
 	setOver() {
 		this.over = true;
 	}
+	/**
+	 * Marks the current game as unfinished.
+	 */
+	clearOver() {
+		this.over = false;
+	}
 
 	/**
 	 * Indicates whether the current game is paused.
@@ -267,6 +273,7 @@ export class Game {
 	 * @param {Number | null} gameSeed The seed to use to generate the game. If null, one will be made based on the current time.
 	 */
 	generateGameBoard(boardSize, numMines, gameSeed = null) {
+		this.clearOver();
 		if (boardSize < 2) throw new Error("Invalid board size.");
 		if (numMines >= boardSize*boardSize) throw new Error("Invalid number of mines.");
 		if (gameSeed && typeof(gameSeed) != "number") throw new Error("Invalid seed.");

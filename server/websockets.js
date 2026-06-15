@@ -17,7 +17,6 @@ import { updateIfRecord } from "./db.js";
  */
 export function generateHandler(games, id, gameData, callback) {
 	// Check if valid game exists
-	console.log("ALL GAMES:", games, "\n\nUSER GAME:", games[id])
 	if (typeof(games[id]) == "object") {
 		if (!games[id].isOver()) {
 			callback({error: "Game already in progress."});
@@ -38,8 +37,7 @@ export function generateHandler(games, id, gameData, callback) {
 	// Ensure parameters are valid and generate game board.
 	if (typeof(boardSize) != "number" || typeof(mines) != "number" || (typeof(seed) != "number" && seed)) callback({error: "Invalid parameters"});
 	try {
-		games[`${id}`] = new Game();
-		console.log(typeof(games[id]));
+		// games[`${id}`] = new Game();
 		games[`${id}`].generateGameBoard(boardSize, mines, seed);
 	} catch(err) {
 		console.log(err);

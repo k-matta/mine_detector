@@ -53,7 +53,6 @@ const games = {};
 // Register websocket handlers
 io.on('connection', (socket) => {
 	const id = socket.handshake.auth.userId;
-	console.log("user connected");
 
 	// Generate game
 	socket.on("generate", (gameData, callback) => {
