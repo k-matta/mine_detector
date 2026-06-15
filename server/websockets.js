@@ -90,7 +90,7 @@ export function uncoverHandler(game, coords, callback) {
 
 	// If this is the first click of the game, start the timer.
 	if (!game.getStarted()) game.start();
-	console.log(game.isStarted(), game.timeEvents);
+	console.log(game.getStarted(), game.timeEvents);
 
 	// Check if the user lost the game.
 	const gameStatus = game.clickGridItem(square);
