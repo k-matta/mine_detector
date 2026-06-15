@@ -662,6 +662,7 @@ function endGame(badFlags, seed) {
  * @param {dbError | dbSuccess | recordData} record The user's record (if not beaten) or an error or success code depending on the database response.
  */
 function winGame(gameTime, seed, record) {
+	console.log(record);
 	for (let i = 0; i < game.getSize(); i++) {
 		for (let j = 0; j < game.getSize(); j++) {
 			const item = game.getItem(i, j);
@@ -925,7 +926,7 @@ async function rClickGrid(event) {
 
 		// If the user has won, trigger winGame function.
 		if (res.win) {
-			winGame(res.time, res.seed);
+			winGame(res.time, res.seed, res.record);
 		}
 
 	// If the square was flagged, remove the flag.
