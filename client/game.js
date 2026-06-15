@@ -710,7 +710,7 @@ function gameOver(seed) {
 
 // Standard game button
 standard.addEventListener("click", async () => {
-	await startGame(20, 50);
+	await startGame(10, 10);
 });
 
 // Custom game button
