@@ -900,6 +900,7 @@ async function rClickGrid(event) {
 	if (game.getFlagsRemaining() && item.isCovered() && !item.isFlagged()) {
 		// Tell the server to flag the square.
 		const res = await socket.emitWithAck("flag", [Number(this.id.split("-")[0]), Number(this.id.split("-")[1])]);
+		console.log(JSON.stringify(res))
 
 		// If there is an error, ignore the command.
 		if (res.error) return;
@@ -919,10 +920,9 @@ async function rClickGrid(event) {
 		if (!game.getFlagsRemaining()) {
 			flagIndicator.style.backgroundColor = "#AA0000";
 		}
-		console.log(JSON.stringify(res))
 		// If the user has won, trigger winGame function.
 		if (res.win) {
-			console.log(console.log(res.record));
+			console.log(JSON.stringify(res.record));
 			winGame(res.time, res.seed, res.record);
 		}
 
