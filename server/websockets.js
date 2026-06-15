@@ -101,13 +101,10 @@ export async function uncoverHandler(game, coords, callback) {
 	// Update user record, if required. Otherwise, retrieve record data.
 	const timeStamp = new Date();
 	let record;
-	console.log(gameStatus, game.getStandard());
 	if (gameStatus == "won" && game.getStandard()) {
-		console.log("won");
 		record = await updateIfRecord(game.getUserId(), game.getTime(), game.getSeed(), timeStamp.toISOString());
 	}
-	console.log(record);
-
+	
 	// Send changes to the client.
 	callback({changes: game.getChanges(), seed: gameStatus ? game.getSeed() : null, win: gameStatus == "won", time: game.getTime(), updated: timeStamp.getTime(), record});
 
@@ -171,15 +168,12 @@ export async function flagHandler(game, coords, callback) {
 	const timeStamp = new Date();
 	if (!game.getValidRemaining() && !game.getFlagsRemaining()) {
 		game.winGame();
-		console.log("Flag win!", game.getStandard());
 		if (game.getStandard())
-			console.log("won");
 			record = await updateIfRecord(game.getUserId(), game.getTime(), game.getSeed(), timeStamp.toISOString());
 		win = true;
 	} else {
 		game.calculateTime();
 	}
-	console.log(record);
 	// Send changes to the client.
 	callback({flags: game.getFlagsRemaining(), time: game.getTime(), updated: timeStamp.getTime(), win, seed: game.getSeed(), record});
 }

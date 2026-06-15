@@ -35,7 +35,6 @@ async function selectHS(userID) {
 		console.log(error);
 		return {error: "Unable to retrieve user data."};
 	}
-	console.log(data);
 	if (!data) {
 		console.log("No record found.");
 		return {time: 0, seed: null, set_on: null};
@@ -50,7 +49,6 @@ async function selectHS(userID) {
 	}
 	if (!data[0].seed) data.seed = "unknown";
 	if (!data[0].set_on) data.set_on = "unknown";
-	console.log(data);
 	return data[0];
 }
 
@@ -84,7 +82,7 @@ export async function updateIfRecord(userID, time, seed, date) {
 	if (sRes.error) {
 		return {error: sRes.error};
 	}
-	if (sRes.time >= time) {
+	if (sRes.time >= time || !sRes.time) {
 		return upsertHS(userID, time, seed, date);
 	}
 	return sRes;
