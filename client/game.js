@@ -681,8 +681,6 @@ function winGame(gameTime, seed, record) {
 			recordData = recordDate.toLocaleString();
 		}
 		overScreen.children[2].innerHTML += `<br>Your best time was <strong>${getReadableTime(record.time)}</strong> with seed <strong>${record.seed}</strong> set on date <strong>${recordDate}</strong>.`;
-	} else {
-		overScreen.children[2].innerHTML += "<br>There was an error setting or retrieving your record."
 	}
 	gameOver(seed);
 }
