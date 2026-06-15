@@ -53,6 +53,7 @@ const games = {};
 // Register websocket handlers
 io.on('connection', (socket) => {
 	const id = socket.handshake.auth.userId;
+	console.log("user connected");
 
 	// Generate game
 	socket.on("generate", (gameData, callback) => {
@@ -121,11 +122,8 @@ app.post("/api/token", async (req, res) => {
 		}
 	});
 
-	console.log(userRes);
 	const user = await userRes.json();
-	console.log(user.id);
 	games[req.body.code] = new Game(Number(user.id));
-	console.log(games);
 });
 
 server.listen(port, () => {

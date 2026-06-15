@@ -17,6 +17,7 @@ import { updateIfRecord } from "./db.js";
  */
 export function generateHandler(games, id, gameData, callback) {
 	// Check if valid game exists
+	console.log("ALL GAMES:", games, "\n\nUSER GAME:", games[id])
 	if (typeof(games[id]) == "object") {
 		if (!games[id].isOver()) {
 			callback({error: "Game already in progress."});
