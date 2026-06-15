@@ -100,7 +100,7 @@ export function uncoverHandler(game, coords, callback) {
 	// Update user record, if required. Otherwise, retrieve record data.
 	const timeStamp = new Date();
 	let record;
-	if (gameStatus == "won" && game.isStandard()) {
+	if (gameStatus == "won" && game.getStandard()) {
 		record = updateIfRecord(game.getUserId(), game.getTime(), game.getSeed(), timeStamp.toISOString());
 	}
 
@@ -166,7 +166,7 @@ export function flagHandler(game, coords, callback) {
 	const timeStamp = new Date();
 	if (!game.getValidRemaining() && !game.getFlagsRemaining()) {
 		game.winGame();
-		if (game.isStandard())
+		if (game.getStandard())
 			record = updateIfRecord(game.getUserId(), game.getTime(), game.getSeed(), timeStamp.toISOString());
 		win = true;
 	} else {
