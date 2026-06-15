@@ -39,6 +39,10 @@ const io = new Server(server, {
 		origin: process.env.CORS_ALLOW.split(","),
 		methods: ["GET", "POST"]
 	},
+	reconnection: true,
+	reconnectionAttempts: Infinity,
+	reconnectionDelay: 1000,
+	reconnectionDelayMax: 5000,
 	connectionStateRecovery: {
 		maxDisconnectionDuration: 2 * 60 * 1000 // 2 minutes
 	},
@@ -53,6 +57,9 @@ const games = {};
 // Register websocket handlers
 io.on('connection', (socket) => {
 	const id = socket.handshake.auth.userId;
+	try {
+		games[id].clearSelfDestruct();
+	} catch(e) {}
 
 	// Generate game
 	socket.on("generate", (gameData, callback) => {
@@ -86,14 +93,13 @@ io.on('connection', (socket) => {
 
 	// On socket disconnect
 	socket.on("disconnect", () => {
-		delete games[id];
+		games[id].setSelfDestruct();
 		socket.removeAllListeners();
 	});
 });
 
 // Authenticate clients
 app.post("/api/token", async (req, res) => {
-	console.log("Beginning authentication");
 	// Exchange the code for an access_token
 	const response = await fetch(`https://discord.com/api/oauth2/token`, {
 		method: "POST",
@@ -110,7 +116,6 @@ app.post("/api/token", async (req, res) => {
 	
 	// Retrieve the access_token from the response
 	const { access_token } = await response.json();
-	console.log("Authentication complete");
 	// Return the access_token to our client as { access_token: "..."}
 	res.send({access_token});
 

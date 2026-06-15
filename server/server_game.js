@@ -41,6 +41,8 @@ export class Game {
 		this.changes = [];
 		/** @type {Boolean} Whether or not the game is standard (i.e., high scores are recorded). */
 		this.isStandard = false;
+		/** @type {Number} Stores the interval ID for the self destruct function. */
+		this.destructID = 0;
 	}
 
 	/**
@@ -445,6 +447,22 @@ export class Game {
 		this.calculateTime();
 		this.setOver();
 		return "won";
+	}
+
+	/**
+	 * Sets the game to delete itself when the client disconnects.
+	 */
+	setSelfDestruct() {
+		this.destructID = setTimeout(() => {
+			delete this;
+		}, 60*1000);
+	}
+
+	/**
+	 * Prevents the auto-delete feature if the client reconnects.
+	 */
+	clearSelfDestruct() {
+		clearTimeout(this.destructID);
 	}
 }
 
