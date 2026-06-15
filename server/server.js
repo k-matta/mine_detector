@@ -121,7 +121,9 @@ app.post("/api/token", async (req, res) => {
 		}
 	});
 
+	console.log(userRes);
 	const user = await userRes.json();
+	console.log(user);
 	games[req.body.code] = new Game(user.id);
 });
 
