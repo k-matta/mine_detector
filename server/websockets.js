@@ -163,8 +163,8 @@ export function flagHandler(game, coords, callback) {
 	let record;
 
 	// Check if the user has won and calculate elapsed time to sync the client.
+	const timeStamp = new Date();
 	if (!game.getValidRemaining() && !game.getFlagsRemaining()) {
-		const timeStamp = new Date();
 		game.winGame();
 		record = updateIfRecord(game.getUserId(), game.getTime(), game.getSeed(), timeStamp.toISOString());
 		win = true;
