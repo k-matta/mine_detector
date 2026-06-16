@@ -30,13 +30,33 @@ const corsOptions = {
 // Configure the server
 dotenv.config({ path: ["../.env", "/etc/secrets/.env"] });
 app.set('images', path.join(__dirname, "/public/images"));
-app.use(express.static("public"));
+app.use(express.static("../client/dist"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ extended: true }));
 app.disable("x-powered-by");
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(helmet());
+// app.use((req, res, next) => {
+// 	if (req.headers.cookie && req.headers.cookie.includes('ngrok-bypass')) {
+// 		return next();
+// 	}
+
+// 	// Check if the request is coming from the Discord client iframe
+// 	const isDiscord = req.headers['user-agent'] && req.headers['user-agent'].includes('Discord');
+	
+// 	if (isDiscord) {
+// 		// Force-inject the ngrok bypass cookie via a minimal HTML response
+// 		res.setHeader('Set-Cookie', 'ngrok-bypass=true; Path=/; SameSite=None; Secure');
+// 		return res.send(`
+// 			<html>
+// 				<head><script>window.location.reload();</script></head>
+// 				<body>Loading Discord Activity...</body>
+// 			</html>
+// 		`);
+// 	}
+// 	next();
+// });
 
 const server = createServer(app);
 
