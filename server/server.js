@@ -12,7 +12,7 @@ import { Game } from "./server_game.js";
 import * as gameSocket from "./websockets.js";
 import crypto from "node:crypto";
 import * as cookie from "cookie";
-import * as helmet from "helmet";
+import helmet from "helmet";
 
 // Create server constants.
 const app = express();
