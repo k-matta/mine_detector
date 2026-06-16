@@ -356,7 +356,10 @@ const socket = io(import.meta.env.VITE_SERVER_URL, {
 	reconnectionDelay: 1000,
 	reconnectionDelayMax: 5000,
 	path: "/socket/",
-	withCredentials: true
+	withCredentials: true,
+	extraHeaders: {
+		"ngrok-skip-browser-warning": "true"
+	}
 });
 
 // Defining important HTMLELement constants.
