@@ -12,6 +12,7 @@ import { Game } from "./server_game.js";
 import * as gameSocket from "./websockets.js";
 import crypto from "node:crypto";
 import * as cookie from "cookie";
+import * as helmet from "helmet";
 
 // Create server constants.
 const app = express();
@@ -35,6 +36,7 @@ app.use(express.json({ extended: true }));
 app.disable("x-powered-by");
 app.use(cors(corsOptions));
 app.use(cookieParser());
+app.use(helmet());
 
 const server = createServer(app);
 
@@ -120,6 +122,10 @@ io.on('connection', (socket) => {
 
 // Authenticate clients
 app.post("/api/token", async (req, res) => {
+	if (!req.body.code) {
+		res.sendStatus(401);
+		return;
+	}
 	// Exchange the code for an access_token
 	const response = await fetch(`https://discord.com/api/oauth2/token`, {
 		method: "POST",
@@ -163,6 +169,35 @@ app.post("/api/token", async (req, res) => {
 	// Return the access_token to our client as { access_token: "..."}
 	res.send({access_token});
 });
+
+// Route for future non-Discord gaming
+// app.post("/login", async (req, res) => {
+// 	const cookieHeader = req.cookies;
+// 	let ID;
+// 	if (!cookieHeader) {
+// 		ID = crypto.randomUUID();
+// 		res.cookie("auth", ID, {
+// 			httpOnly: true,
+// 			secure: true,
+// 			sameSite: "strict",
+// 			partitioned: true,
+// 			maxAge: 100000*24*60*60*1000,
+// 		});
+// 	}
+// 	if (!cookieHeader.session) {
+// 		ID = crypto.randomUUID();
+// 		res.cookie("auth", ID, {
+// 			httpOnly: true,
+// 			secure: true,
+// 			sameSite: "strict",
+// 			partitioned: true,
+// 			maxAge: 100000*24*60*60*1000,
+// 		});
+// 	} else {
+// 		ID = cookieHeader.session;
+// 	}
+// 	games[ID] = new Game(crypto.randomBytes(8).toString("utf-8"));
+// });
 
 server.listen(port, () => {
 	console.log(`Server listening on port ${port}`);
