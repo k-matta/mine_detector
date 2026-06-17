@@ -37,26 +37,6 @@ app.disable("x-powered-by");
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(helmet());
-// app.use((req, res, next) => {
-// 	if (req.headers.cookie && req.headers.cookie.includes('ngrok-bypass')) {
-// 		return next();
-// 	}
-
-// 	// Check if the request is coming from the Discord client iframe
-// 	const isDiscord = req.headers['user-agent'] && req.headers['user-agent'].includes('Discord');
-	
-// 	if (isDiscord) {
-// 		// Force-inject the ngrok bypass cookie via a minimal HTML response
-// 		res.setHeader('Set-Cookie', 'ngrok-bypass=true; Path=/; SameSite=None; Secure');
-// 		return res.send(`
-// 			<html>
-// 				<head><script>window.location.reload();</script></head>
-// 				<body>Loading Discord Activity...</body>
-// 			</html>
-// 		`);
-// 	}
-// 	next();
-// });
 
 const server = createServer(app);
 
@@ -189,35 +169,6 @@ app.post("/api/token", async (req, res) => {
 	// Return the access_token to our client as { access_token: "..."}
 	res.send({access_token});
 });
-
-// Route for future non-Discord gaming
-// app.post("/login", async (req, res) => {
-// 	const cookieHeader = req.cookies;
-// 	let ID;
-// 	if (!cookieHeader) {
-// 		ID = crypto.randomUUID();
-// 		res.cookie("auth", ID, {
-// 			httpOnly: true,
-// 			secure: true,
-// 			sameSite: "strict",
-// 			partitioned: true,
-// 			maxAge: 100000*24*60*60*1000,
-// 		});
-// 	}
-// 	if (!cookieHeader.session) {
-// 		ID = crypto.randomUUID();
-// 		res.cookie("auth", ID, {
-// 			httpOnly: true,
-// 			secure: true,
-// 			sameSite: "strict",
-// 			partitioned: true,
-// 			maxAge: 100000*24*60*60*1000,
-// 		});
-// 	} else {
-// 		ID = cookieHeader.session;
-// 	}
-// 	games[ID] = new Game(crypto.randomBytes(8).toString("utf-8"));
-// });
 
 server.listen(port, () => {
 	console.log(`Server listening on port ${port}`);
