@@ -717,7 +717,7 @@ custom.addEventListener("click", () => {
 menuReturn.addEventListener("click", () => {
 	home.style.display = "block";
 	customForm.style.display = "none";
-}
+});
 
 // Game board size slider
 size.addEventListener("input", () => {
