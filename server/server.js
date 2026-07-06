@@ -30,7 +30,7 @@ const corsOptions = {
 // Configure the server
 dotenv.config({ path: ["../.env", "/etc/secrets/.env"] });
 app.set('images', path.join(__dirname, "/public/images"));
-app.use(express.static("public"));
+app.use(express.static("../client/dist"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ extended: true }));
 app.disable("x-powered-by");
@@ -169,35 +169,6 @@ app.post("/api/token", async (req, res) => {
 	// Return the access_token to our client as { access_token: "..."}
 	res.send({access_token});
 });
-
-// Route for future non-Discord gaming
-// app.post("/login", async (req, res) => {
-// 	const cookieHeader = req.cookies;
-// 	let ID;
-// 	if (!cookieHeader) {
-// 		ID = crypto.randomUUID();
-// 		res.cookie("auth", ID, {
-// 			httpOnly: true,
-// 			secure: true,
-// 			sameSite: "strict",
-// 			partitioned: true,
-// 			maxAge: 100000*24*60*60*1000,
-// 		});
-// 	}
-// 	if (!cookieHeader.session) {
-// 		ID = crypto.randomUUID();
-// 		res.cookie("auth", ID, {
-// 			httpOnly: true,
-// 			secure: true,
-// 			sameSite: "strict",
-// 			partitioned: true,
-// 			maxAge: 100000*24*60*60*1000,
-// 		});
-// 	} else {
-// 		ID = cookieHeader.session;
-// 	}
-// 	games[ID] = new Game(crypto.randomBytes(8).toString("utf-8"));
-// });
 
 server.listen(port, () => {
 	console.log(`Server listening on port ${port}`);

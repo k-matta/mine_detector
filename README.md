@@ -1,24 +1,45 @@
 # Mine-Detector
 
-## Quick Intro
-This is a fun clone I created from scratch to mimick the gameplay of the classic game Minesweeper. This version, however, was built to run as a Discord activity.
+## Overview
+Mine-Detector is a Minesweeper-inspired Discord activity built from scratch as a personal project.
+
+The game preserves the core Minesweeper experience while allowing players to customize the board to their preferred difficulty.
 
 ## Gameplay
-Once the game launches, you can choose between a Standard Game and a Custom Game. A Standard Game consists of a 20X20 grid with 50 mines while a custom game lets you choose the size of the grid as well as the number of mines (and even the [game seed](#about-the-seed))!
+Once the game launches, you can choose between:
+- Standard Game: 20×20 grid with 50 mines
+- Custom Game: Configure the board size, number of mines, and optionally provide a [game seed](#about-the-seed)
 
-Gameplay follows the same rules as standard Minesweeper: left-click to uncover a square, right-click to flag a square. A number indicates the amount of adjacent mines (including diagonals) and no number means there are no adjacent mines.
+Gameplay follows the same rules as standard Minesweeper:
+- Left-click to uncover a square
+- Right-click to place or remove a flag
+- Numbered squares indicate the number of adjacent mines, including diagonals
+- Blank squares indicate there are no adjacent mines
 
-## Losing the Game
-The game is over when you click on a square containing a mine. When this happens, a popup will appear, telling you how many mines you still had to flag as well as the game seed. You can hide this popup to see the board where all squares are now uncovered to show you what the correct answer was. All correctly flagged mines will have a green background, and all mines that were not flagged (and safe squares that _were_ flagged) will have a red background so you can understand where you made your mistake.
+## Losing a Game
+The game ends when a square containing a mine is uncovered. When this happens, a popup will appears that indicates:
+1. How many mines that remained unflagged
+2. The game seed 
 
-## Winning the Game
-If you manage to uncover all safe squares _and_ flag all mines on the grid, you have won! You will then see a popup that tells you your time and the game seed. Like with losing the game, you can hide the popup to view the board.
+The popup can be hidden to view the fully uncovered board. All correctly flagged mines will have a green background while missed mines and incorrectly flagged squares will have a red background, making it easy to identify any mistakes.
+
+## Winning a Game
+To win, all safe squares must be uncovered and all mines must be flagged.
+
+Upon winning a agame, you will see a popup that displays:
+1. The time it took you to finish
+2. The game seed
+3. For Standard Games, a message indicating that you have set a new record or your previous record, as applicable
+
+The popup can be hidden to view the board.
+
+Records are associated with your Discord user ID so that they persistant across game sessions.
 
 ## About the Seed
-This version of Minesweeper is seeded using the current time (if no seed is provided). However, when creating a Custom Game, a seed can be given, allowing you to try getting a very fast time with a known grid, or even just to share a funny-looking game with your friends.
-
+By defualt, games are seeded using the current time; however, when beginning a Custom Game, a numerical seed can be provided, allowing you to try speedrunning a known grid or share a interesting board with your friends.
+<br>
 
 ## Acknowledgements
-Thank you to the friends who inspired me to make this game!
+Special thanks to the friends who inspired me to make this game!
 
 > ℹ️ This app is based on the template used in the [Building An Activity](https://discord.com/developers/docs/activities/building-an-activity) tutorial in the Discord Developer Docs.

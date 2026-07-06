@@ -356,7 +356,10 @@ const socket = io(import.meta.env.VITE_SERVER_URL, {
 	reconnectionDelay: 1000,
 	reconnectionDelayMax: 5000,
 	path: "/socket/",
-	withCredentials: true
+	withCredentials: true,
+	extraHeaders: {
+		"ngrok-skip-browser-warning": "true"
+	}
 });
 
 // Defining important HTMLELement constants.
@@ -668,7 +671,7 @@ function winGame(gameTime, seed, record) {
 	}
 	// Set game win message.
 	overScreen.children[1].innterText = "You Win!";
-	overScreen.children[2].innerHTML = `Your time: ${gameTime/1000} seconds.<br>${overScreen.children[2].innerHTML}`;
+	overScreen.children[2].innerHTML = `Your time: ${getReadableTime(record.time)}.${gameTime%1000} seconds.<br>${overScreen.children[2].innerHTML}`;
 	if (record.success) {
 		overScreen.children[2].innerHTML = "<strong>You set a new record!</strong><br>" + overScreen.children[2].innerHTML;
 	} else if (record.time) {
