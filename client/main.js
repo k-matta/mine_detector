@@ -77,8 +77,8 @@ try {
 					<input type="text" id="seed" pattern="\d+" value="" width="170px"/>
 				</section>
 				<br>
-				<button id="start-custom">Start Custom Game!</button>
-				<button id="menu-return">Return to Main Menu</button>
+				<button type="button" id="start-custom">Start Custom Game!</button>
+				<button type="button" id="menu-return">Return to Main Menu</button>
 			</form>
 			<section id="over">
 				<button type="button" id="over-hide">Hide</button>
