@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/home/guess_who/.nvm/versions/node/v24.16.0/bin/node server/server.js

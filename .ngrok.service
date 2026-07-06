@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ngrok http --url=unseated-swear-eligible.ngrok-free.dev 3001

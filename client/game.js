@@ -368,6 +368,7 @@ const app = document.getElementById("app");
 const gameDisplay = document.getElementById("game");
 const customForm = document.getElementById("c-form");
 const customStart = document.getElementById("start-custom");
+const menuReturn = document.getElementById("menu-return");
 const overScreen = document.getElementById("over");
 const returner = document.getElementById("return");
 const standard = document.getElementById("standard");
@@ -709,8 +710,14 @@ standard.addEventListener("click", async () => {
 
 // Custom game button
 custom.addEventListener("click", () => {
+	home.style.display = "none";
 	customForm.style.display = "block";
 });
+
+menuReturn.addEventListener("click", () => {
+	home.style.display = "block";
+	customForm.style.display = "none";
+}
 
 // Game board size slider
 size.addEventListener("input", () => {

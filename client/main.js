@@ -78,6 +78,7 @@ try {
 				</section>
 				<br>
 				<button id="start-custom">Start Custom Game!</button>
+				<button id="menu-return">Return to Main Menu</button>
 			</form>
 			<section id="over">
 				<button type="button" id="over-hide">Hide</button>
