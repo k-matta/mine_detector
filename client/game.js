@@ -398,11 +398,15 @@ let timerId = 0;
  * @returns {String} The formatted time.
  */
 function getReadableTime(time) {
+	console.log(typeof(time), time/1000);
 	let sec = Math.floor(time/1000) % 60;
-		if (sec < 10) {
-			sec = `0${sec}`;
-		}
-		let min = Math.floor(time/60000);
+	console.log(sec);
+	if (sec < 10) {
+		sec = `0${sec}`;
+	}
+	console.log(sec);
+	let min = Math.floor(time/60000);
+	console.log(min);
 	return `${min}:${sec}`;
 }
 
@@ -671,8 +675,12 @@ function winGame(gameTime, seed, record) {
 		}
 	}
 	// Set game win message.
+	let ms;
+	if (gameTime%1000 < 100) {
+		ms = `0${gameTime%1000}`;
+	} else ms = `${gameTime%1000}`;
 	overScreen.children[1].innterText = "You Win!";
-	overScreen.children[2].innerHTML = `Your time: ${getReadableTime(record.time)}.${gameTime%1000}.<br>${overScreen.children[2].innerHTML}`;
+	overScreen.children[2].innerHTML = `Your time: ${getReadableTime(record.time)}.${ms}.<br>${overScreen.children[2].innerHTML}`;
 	if (record.success) {
 		overScreen.children[2].innerHTML = "<strong>You set a new record!</strong><br>" + overScreen.children[2].innerHTML;
 	} else if (record.time) {

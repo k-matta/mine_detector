@@ -82,6 +82,7 @@ export async function updateIfRecord(userID, time, seed, date) {
 	if (sRes.error) {
 		return {error: sRes.error};
 	}
+	console.log(JSON.stringify(sRes), sRes.time, time, sRes.time>time);
 	if (sRes.time >= time || !sRes.time) {
 		return upsertHS(userID, time, seed, date);
 	}
