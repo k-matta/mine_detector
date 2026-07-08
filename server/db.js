@@ -66,6 +66,7 @@ async function upsertHS(userID, time, seed, date) {
 		console.log(error);
 		return {error: "Unable to retrieve user data."};
 	}
+	console.log("Returning success");
 	return {success: "Data updated successfully."};
 }
 
@@ -82,9 +83,11 @@ export async function updateIfRecord(userID, time, seed, date) {
 	if (sRes.error) {
 		return {error: sRes.error};
 	}
-	console.log(JSON.stringify(sRes), sRes.time, time, sRes.time>time);
+	console.log(`Found Record: ${JSON.stringify(sRes)}\nCurrent time: ${time}\nNew record: ${sRes.time>time}`);
 	if (sRes.time >= time || !sRes.time) {
+		console.log("New high score: ", time);
 		return upsertHS(userID, time, seed, date);
 	}
+	console.log("Old high score.");
 	return sRes;
 }

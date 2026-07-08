@@ -680,18 +680,18 @@ function winGame(gameTime, seed, record) {
 		ms = `0${gameTime%1000}`;
 	} else ms = `${gameTime%1000}`;
 	overScreen.children[1].innterText = "You Win!";
-	overScreen.children[2].innerHTML = `Your time: ${getReadableTime(record.time)}.${ms}.<br>${overScreen.children[2].innerHTML}`;
+	overScreen.children[2].innerHTML = `Your time: ${getReadableTime(gameTime)}.${ms}.<br>${overScreen.children[2].innerHTML}`;
 	if (record.success) {
 		overScreen.children[2].innerHTML = "<strong>You set a new record!</strong><br>" + overScreen.children[2].innerHTML;
 	} else if (record.time) {
 		let recordDate;
-		if (record.set_on != "unknwon") {
+		if (record.set_on != "unknown") {
 			recordDate = new Date(record.set_on);
 			recordDate = recordDate.toLocaleString();
 		}
-		if (gameTime%1000 < 100) {
-        	        ms = `0${gameTime%1000}`;
-       		} else ms = `${gameTime%1000}`;
+		if (record.time%1000 < 100) {
+			ms = `0${record.time%1000}`;
+		} else ms = `${record.time%1000}`;
 		overScreen.children[2].innerHTML += `<br>Your best time was <strong>${getReadableTime(record.time)}.${ms}</strong> with seed <strong>${record.seed}</strong> set on date <strong>${recordDate}</strong>.`;
 	}
 	gameOver(seed);
