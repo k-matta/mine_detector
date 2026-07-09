@@ -702,15 +702,9 @@ function winGame(gameTime, seed, record) {
  * @param {Number} seed The game seed.
  */
 function gameOver(seed) {
-
 	// Reveal the game seed.
 	overScreen.children[2].children[1].innerText = seed;
 	overScreen.style.display = "block";
-
-	// Reset the game.
-	game.reset();
-	flagIndicator.style.backgroundColor = "#4a4a4a";
-
 }
 
 // Standard game button
@@ -859,6 +853,10 @@ returner.addEventListener("click", () => {
 	overScreen.children[2].innerHTML = overScreen.children[2].innerHTML.split("<br>").find((string) => string.indexOf("Seed") != -1);
 	overScreen.children[2].children[0].innerText = "";
 	home.style.display = "block";
+
+	// Reset the game.
+	game.reset();
+	flagIndicator.style.backgroundColor = "#4a4a4a";
 });
 
 /**
@@ -890,7 +888,7 @@ async function clickGrid() {
 	
 	// Capture incoorect flags if the game is over.
 	const badFlags = game.updateGame(res.changes);
-
+	console.log(JSON.stringify(res));
 	if (!res.seed) { // Game is not over: update board.
 		updateInnerBoard(game);
 	} else if (res.win) { // Game win: trigger winGame function.
@@ -907,7 +905,7 @@ async function clickGrid() {
 */
 async function rClickGrid(event) {
 	event.preventDefault()
-
+	
 	// Get the GridItem object for the square that was clicked and make sure it is valid.
 	const item = game.getItem(Number(this.id.split("-")[0]), Number(this.id.split("-")[1]));
 	if (!item) return;
@@ -936,6 +934,8 @@ async function rClickGrid(event) {
 		if (!game.getFlagsRemaining()) {
 			flagIndicator.style.backgroundColor = "#AA0000";
 		}
+
+		console.log(JSON.stringify(res));
 		// If the user has won, trigger winGame function.
 		if (res.win) {
 			winGame(res.time, res.seed, res.record);

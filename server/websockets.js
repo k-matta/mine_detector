@@ -105,9 +105,10 @@ export async function uncoverHandler(game, coords, callback) {
 		record = await updateIfRecord(game.getUserId(), game.getTime(), game.getSeed(), timeStamp.toISOString());
 	}
 	
+	console.log(gameStatus, game.getSeed());
 	// Send changes to the client.
 	callback({changes: game.getChanges(), seed: gameStatus ? game.getSeed() : null, win: gameStatus == "won", time: game.getTime(), updated: timeStamp.getTime(), record});
-
+	
 	// Clear list of changes and end the game if necessary.
 	game.clearChanges();
 	if (gameStatus) {
@@ -121,9 +122,9 @@ export async function uncoverHandler(game, coords, callback) {
  * @param {Array<Number>} coords The coordinates of the target square.
  * @param {WebsocketCallback} callback The callback function for responding to the client.
  * @returns {void}
- */
+*/
 export async function flagHandler(game, coords, callback) {
-
+	
 	// Make sure action is valid.
 	if (!game) return;
 	if (game.isOver()) {
@@ -136,7 +137,7 @@ export async function flagHandler(game, coords, callback) {
 	} if (!game.getFlagsRemaining()) {
 		callback({error: "No flags left to use"})
 	}
-
+	
 	// Make sure coordinates are valid.
 	if (coords.length > 2 || coords.length < 2) {
 		callback({error: "Invalid parameters."});
@@ -157,13 +158,13 @@ export async function flagHandler(game, coords, callback) {
 		callback({error: "Square connot be flagged"});
 		return;
 	}
-
+	
 	// Flag the square.
 	game.removeFlag();
 	square.setFlag();
 	let win = false;
 	let record;
-
+	
 	// Check if the user has won and calculate elapsed time to sync the client.
 	const timeStamp = new Date();
 	if (!game.getValidRemaining() && !game.getFlagsRemaining()) {
@@ -174,6 +175,7 @@ export async function flagHandler(game, coords, callback) {
 	} else {
 		game.calculateTime();
 	}
+	console.log(gameStatus, game.getSeed());
 	// Send changes to the client.
 	callback({flags: game.getFlagsRemaining(), time: game.getTime(), updated: timeStamp.getTime(), win, seed: game.getSeed(), record});
 }
