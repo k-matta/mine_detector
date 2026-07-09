@@ -175,7 +175,7 @@ export async function flagHandler(game, coords, callback) {
 	} else {
 		game.calculateTime();
 	}
-	console.log(gameStatus, game.getSeed());
+	console.log(win, game.getSeed());
 	// Send changes to the client.
 	callback({flags: game.getFlagsRemaining(), time: game.getTime(), updated: timeStamp.getTime(), win, seed: game.getSeed(), record});
 }
